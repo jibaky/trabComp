@@ -1,0 +1,8 @@
+<div>
+    <input type="text" id="exp" size="5" [(value)]="textExp" #text><br>
+    <button mat-raised-button color="primary" (click)="func(text.value)">button</button><br>
+    <tr *ngFor="let line of results">
+        <td>{{line.token}}</td>
+        <td>{{line.meaning}}</td>
+    </tr>
+</div>
