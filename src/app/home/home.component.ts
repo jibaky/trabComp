@@ -1,5 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 
+class Token {
+  token: string = '';
+  meaning: string = '';
+}
+
 @Component({
   selector: 'app-home',
   templateUrl: './home.component.html',
@@ -9,49 +14,96 @@ export class HomeComponent implements OnInit {
 
   constructor() { }
   textExp: any = ''
-  textProc: any = ''
-  
-  reNAT = /\d*/
-  reREA = /\d*\.\d*/
-  reAP = /\(/
-  reFP = /\)/
-  reOPSUM = /\+/
-  reOPSUB = /\-/
-  reOPMUL = /\*/
-  reOPDIV = /\\/
 
-  ngOnInit(): void {
+  /** Lista de tokens que dividem os numeros da calculadora */
+  dividers = '+-*/()'.split('');
+
+  results: Token[] = [];
+  
+  reNAT = /^\d*$/;
+  reREA = /^\d*\.\d*$/;
+  reAP = /^\($/;
+  reFP = /^\)$/;
+  reOPSUM = /^\+$/;
+  reOPSUB = /^\-$/;
+  reOPMUL = /^\*$/;
+  reOPDIV = /^\/$/;
+
+  ngOnInit(): void { }
+
+  parseByDivider(text: string): void {
+    this.results = [];
+    // remove todos os espaços da string por
+    text = text.replaceAll(' ', '');
+    let r = new Token();
+    for(let i = 0; i<text.length; i++){
+      // Caso não seja um operador (divider), acumule o caractere na token
+      if(!this.dividers.includes(text[i])){
+        r.token += text[i];
+      } else {
+        // Caso seja um operador, identifique a token acumulada
+        if (r.token !== '') {
+          r.meaning = this.identifyToken(r.token);
+          this.results.push(r);
+        } 
+        r = new Token();
+        // Agora identifique a token do operador (text[i] atual)
+        r.token = text[i];
+        r.meaning = this.identifyToken(r.token);
+        this.results.push(r);
+        // Prepara um novo Token para a próxima volta do loop
+        r = new Token();
+      }
+    }
+    if (r.token !== '') {
+      r.meaning = this.identifyToken(r.token);
+      this.results.push(r);
+    }
   }
-  func(text: any){
-    let final = ''
+
+  identifyToken(token: string): string {
+    if(this.reNAT.test(token)) return 'Número natural';
+    else if(this.reREA.test(token)) return 'Número real';
+    else if(this.reAP.test(token)) return 'Abre parênteses';
+    else if(this.reFP.test(token)) return 'Fecha parênteses';
+    else if(this.reOPSUM.test(token)) return 'Operação soma';
+    else if(this.reOPSUB.test(token)) return 'Operação substração';
+    else if(this.reOPMUL.test(token)) return 'Operação multiplicação';
+    else if(this.reOPDIV.test(token)) return 'Operação divisão';
+
+    return 'TOKEN DESCONHECIDA';
+  }
+
+  analizadorLexico(text: any): void {
     let words = text.split(' ')
     for(let i = 0; i<words.length; i++){
+      const r = new Token();
+      r.token = words[i];
       if(this.reNAT.test(words[i])){
-        final = final + words[i] + " => numero natural <br>"
+        r.meaning = 'Número natural';
       }
       else if(this.reREA.test(words[i])){
-        final = final + words[i] + " => numero real <br>"
+        r.meaning = 'Número real';
       }
       else if(this.reAP.test(words[i])){
-        final = final + words[i] + " => abre parenteses <br>"
+        r.meaning = 'Abre parênteses';
       }
       else if(this.reFP.test(words[i])){
-        final = final + words[i] + " => fecha parenteses <br>"
+        r.meaning = 'Fecha parênteses';
       }
       else if(this.reOPSUM.test(words[i])){
-        final = final + words[i] + " => operação soma <br>"
+        r.meaning = 'Operação soma';
       }
       else if(this.reOPSUB.test(words[i])){
-        final = final + words[i] + " => operação subtração <br>"
+        r.meaning = 'Operação substração';
       }
       else if(this.reOPMUL.test(words[i])){
-        final = final + words[i] + " => operação multiplicação <br>"
+        r.meaning = 'Operação multiplicação';
       }
       else if(this.reOPDIV.test(words[i])){
-        final = final + words[i] + " => operação divisão <br>"
-      } 
+        r.meaning = 'Operação divisão';
+      }
+      this.results.push(r); 
     }
-    this.textProc = final
-    return
   }
 }
