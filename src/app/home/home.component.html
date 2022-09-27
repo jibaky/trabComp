@@ -1,13 +1,19 @@
-<div>
-    <p>ex: 3.2 + ( 2 * 12.01 )</p>
-    <input type="text" id="exp" size="5" [(value)]="textExp" #text><br>
-    <!-- <button mat-raised-button color="primary" (click)="analizadorLexico(text.value)">Parse!</button><br> -->
-    <button mat-raised-button color="primary" (click)="parseByDivider(text.value)">Parse by dividers!</button><br>
-    <table class="table">
-        <tr *ngFor="let line of results">
-            <td>{{line.token}}</td>
-            <td>=></td>
-            <td>{{line.meaning}}</td>
-        </tr>
-    </table>
+<div class="container">
+  <p>ex: 3.2 + ( 2 * 12.01 )</p>
+  <input type="text" id="exp" size="5" [(value)]="textExp" #text /><br />
+  <!-- <button mat-raised-button color="primary" (click)="analizadorLexico(text.value)">Parse!</button><br> -->
+  <button
+    mat-raised-button
+    color="primary"
+    (click)="parseByDivider(text.value)"
+  >
+    Parse by dividers!</button
+  ><br />
+  <table class="table">
+    <tr *ngFor="let line of results">
+      <td>{{ line.token }}</td>
+      <td>=></td>
+      <td>{{ line.meaning }}</td>
+    </tr>
+  </table>
 </div>

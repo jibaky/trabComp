@@ -1,0 +1,40 @@
+.container {
+  display: flex;
+  justify-content: space-evenly;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 100%;
+}
+
+h1 {
+  font-size: 80px;
+  font-family: monospace;
+  padding-left: 16px;
+  color: var(--color-accent);
+}
+
+.student {
+  width: 300px;
+  height: 205px;
+  text-align: center;
+  padding: 16px;
+}
+
+.student img {
+  border-radius: 50%;
+  width: 150px;
+  height: 150px;
+}
+
+.student .name {
+  font-size: 20px;
+  text-transform: uppercase;
+  font-weight: bold;
+  margin: 4px;
+}
+
+.student .ra {
+  text-align: center;
+  opacity: 0.5;
+}

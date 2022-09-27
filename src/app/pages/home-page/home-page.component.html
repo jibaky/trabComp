@@ -1,0 +1,27 @@
+<div class="cards">
+  <mat-card class="card">
+    <img mat-card-image src="./assets/gif/calculator.gif" alt="Calculadora" />
+    <mat-card-header>
+      <img
+        src="./assets/icons/calculator.png"
+        alt=""
+        mat-card-avatar
+        class="card-icon"
+      />
+      <mat-card-title>Calculadora</mat-card-title>
+      <mat-card-subtitle>Análise léxica</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p>
+        Calculadora com análise léxica e decomposição de <i>tokens</i>. Separa
+        as tokens por tipo usando um pequeno alfabeto composto por
+        {{ "{0-9, +, -, /, *, .}" }}.
+      </p>
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <button color="accent" [routerLink]="'/calculator'" mat-button>
+        ACESSAR CALCULADORA
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
