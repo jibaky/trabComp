@@ -15,6 +15,7 @@ import { MatListModule } from '@angular/material/list';
 import { MatCardModule } from '@angular/material/card';
 import { AboutComponent } from './pages/about/about.component';
 import { AnaliseLexicaComponent } from './pages/analise-lexica/analise-lexica.component';
+import { MatFormFieldModule } from '@angular/material/form-field';
 
 @NgModule({
   declarations: [AppComponent, HomeComponent, HomePageComponent, AboutComponent, AnaliseLexicaComponent],
@@ -29,6 +30,7 @@ import { AnaliseLexicaComponent } from './pages/analise-lexica/analise-lexica.co
     MatIconModule,
     MatListModule,
     MatCardModule,
+    MatFormFieldModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

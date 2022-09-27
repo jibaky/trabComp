@@ -1,13 +1,17 @@
 <div class="container">
+  <mat-form-field color="accent" appearance="fill" (valueChanges)="textExp = text.value">
+    <mat-label>Digite uma fórmula</mat-label>
+    <input matInput type="text" id="exp" size="5" [value]="textExp" #text />
+  </mat-form-field>
   <p>ex: 3.2 + ( 2 * 12.01 )</p>
-  <input type="text" id="exp" size="5" [(value)]="textExp" #text /><br />
   <!-- <button mat-raised-button color="primary" (click)="analizadorLexico(text.value)">Parse!</button><br> -->
+  <br>
   <button
     mat-raised-button
-    color="primary"
+    color="accent"
     (click)="parseByDivider(text.value)"
   >
-    Parse by dividers!</button
+    Análise léxica!</button
   ><br />
   <table class="table">
     <tr *ngFor="let line of results">

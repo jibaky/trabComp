@@ -17,11 +17,11 @@ export class HomeComponent implements OnInit {
 
   /** Lista de tokens que dividem os numeros da calculadora */
   dividers = '+-*/()'.split('');
-
+  alfabeto = '+-*/.1234567890()'.split('');
   results: Token[] = [];
   
   reNAT = /^\d*$/;
-  reREA = /^\d*\.\d*$/;
+  reREA = /^\d+\.\d+$/;
   reAP = /^\($/;
   reFP = /^\)$/;
   reOPSUM = /^\+$/;
@@ -34,9 +34,30 @@ export class HomeComponent implements OnInit {
   parseByDivider(text: string): void {
     this.results = [];
     // remove todos os espaços da string por
-    text = text.replaceAll(' ', '');
     let r = new Token();
     for(let i = 0; i<text.length; i++){
+      // if (text[i] == ' ') {
+      //   if (r.token != ''){
+      //     r.meaning = this.identifyToken(r.token);
+      //     this.results.push(r);
+      //     r = new Token();
+      //   }
+      //   continue;
+      // }
+      if (!this.alfabeto.includes(text[i])){
+        if (r.token != ''){
+          r.meaning = this.identifyToken(r.token);
+          this.results.push(r);
+          r = new Token();
+        }
+        if (text[i] !== ' ') {
+          r.token = text[i];
+          r.meaning = this.identifyToken(r.token);
+          this.results.push(r);
+          r = new Token();
+        }
+        continue; 
+      }
       // Caso não seja um operador (divider), acumule o caractere na token
       if(!this.dividers.includes(text[i])){
         r.token += text[i];
@@ -70,6 +91,10 @@ export class HomeComponent implements OnInit {
     else if(this.reOPSUB.test(token)) return 'Operação substração';
     else if(this.reOPMUL.test(token)) return 'Operação multiplicação';
     else if(this.reOPDIV.test(token)) return 'Operação divisão';
+
+    // verificação de erros
+    if (/(^\.\d*$)|(^\d*\.$)/.test(token)) return 'Número real mal formatado';
+    
 
     return 'TOKEN DESCONHECIDA';
   }
