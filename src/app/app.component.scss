@@ -1,0 +1,22 @@
+.nav-container {
+  height: 100%;
+}
+
+h1 {
+  padding: 16px;
+}
+
+mat-icon {
+  font-family: 'Material Icons Outlined';
+}
+
+.menu-icon {
+  border: none;
+  margin-right: 16px;
+  background: transparent;
+  color: white;
+}
+
+.active {
+  color: var(--color-accent);
+}
