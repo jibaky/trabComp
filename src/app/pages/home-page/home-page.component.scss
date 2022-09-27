@@ -1,13 +1,20 @@
 .card {
   width: 320px;
+  margin: 16px;
 }
 
 .cards {
   margin: 16px;
+  display: flex;
+  justify-content: flex-start;
 }
 
 .card-icon {
   border-radius: 0;
   position: relative;
   top: 2px;
+}
+
+.disabled {
+  filter: grayscale(1);
 }

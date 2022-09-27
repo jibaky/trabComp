@@ -11,6 +11,7 @@ export class AppComponent {
   menu = [
     { name: 'Início', icon: 'home', link: '/' },
     { name: 'Calculadora', icon: 'calculate', link: '/calculator' },
+    { name: 'Análise Léxica', icon: 'data_array', link: '/analiseLexica' },
     { name: 'Sobre', icon: 'info', link: '/sobre' },
   ];
 }

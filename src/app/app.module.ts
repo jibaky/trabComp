@@ -14,9 +14,10 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatListModule } from '@angular/material/list';
 import { MatCardModule } from '@angular/material/card';
 import { AboutComponent } from './pages/about/about.component';
+import { AnaliseLexicaComponent } from './pages/analise-lexica/analise-lexica.component';
 
 @NgModule({
-  declarations: [AppComponent, HomeComponent, HomePageComponent, AboutComponent],
+  declarations: [AppComponent, HomeComponent, HomePageComponent, AboutComponent, AnaliseLexicaComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,

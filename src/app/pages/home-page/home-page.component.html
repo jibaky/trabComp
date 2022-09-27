@@ -1,6 +1,12 @@
 <div class="cards">
   <mat-card class="card">
-    <img mat-card-image src="./assets/gif/calculator.gif" alt="Calculadora" />
+    <img
+      mat-card-image
+      src="./assets/gif/calculator.gif"
+      alt="Calculadora"
+      height="196"
+      class="card-gif"
+    />
     <mat-card-header>
       <img
         src="./assets/icons/calculator.png"
@@ -21,6 +27,68 @@
     <mat-card-actions align="end">
       <button color="accent" [routerLink]="'/calculator'" mat-button>
         ACESSAR CALCULADORA
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <mat-card class="card">
+    <img
+      mat-card-image
+      src="./assets/gif/analiseLexica.gif"
+      alt="Compilador"
+      height="196"
+      class="card-gif"
+    />
+    <mat-card-header>
+      <img
+        src="./assets/icons/binary-code.png"
+        alt=""
+        mat-card-avatar
+        class="card-icon"
+      />
+      <mat-card-title>Análise Léxica de LALG</mat-card-title>
+      <mat-card-subtitle>Análise Léxica</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p>
+        Análise léxica de códigos-fonte em LALG com editor de texto e upload de
+        arquivos no formato .lalg.
+      </p>
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <button color="accent" [routerLink]="'/analiseLexica'" mat-button>
+        ACESSAR
+      </button>
+    </mat-card-actions>
+  </mat-card>
+
+  <mat-card class="card">
+    <img
+      mat-card-image
+      src="./assets/gif/compiler.gif"
+      alt="Compilador"
+      height="196"
+      class="card-gif disabled"
+    />
+    <mat-card-header>
+      <img
+        src="./assets/icons/compiler.png"
+        alt=""
+        mat-card-avatar
+        class="card-icon disabled"
+      />
+      <mat-card-title>Compilador de LALG 1.0</mat-card-title>
+      <mat-card-subtitle>Pacote completo</mat-card-subtitle>
+    </mat-card-header>
+    <mat-card-content>
+      <p>
+        Todos os recursos combinados para testes. Análixe léxica, sintática,
+        semântica, upload de arquivos e síntese.
+      </p>
+    </mat-card-content>
+    <mat-card-actions align="end">
+      <button disabled color="accent" [routerLink]="'/compiler'" mat-button>
+        EM BREVE
       </button>
     </mat-card-actions>
   </mat-card>
