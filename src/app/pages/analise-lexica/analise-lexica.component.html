@@ -1,1 +1,19 @@
-<p>analise-lexica works!</p>
+<div class="container">
+  <div class="editor-container">
+    <div class="line-numbers" #lineNumbersContainer>
+      <div class="line-number" *ngFor="let el of lineNumbers; let i = index">
+        {{ i + 1 }}
+      </div>
+    </div>
+    <textarea type="text" class="editor" (keyup)="parseLines()" #editor>
+teste = (1 + 2) > 4;
+a = 25.9;
+b = 3;
+c = a + b;
+d = c > 4;</textarea
+    >
+  </div>
+  <button class="button" (click)="analisar()" color="accent" mat-raised-button>
+    Executar análise léxica
+  </button>
+</div>
