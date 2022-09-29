@@ -1,4 +1,5 @@
 import { Injectable } from '@angular/core';
+import { ErrorsService } from '../errors/errors.service';
 
 class Token {
   token: string = '';
@@ -15,7 +16,7 @@ export class AnalisadorLexicoService {
       ''
     );
 
-  constructor() {}
+  constructor(private errorsService: ErrorsService) {}
 
   /**
    * Verifica se o caractere char está dentro do alfabeto da linguagem.
@@ -36,9 +37,13 @@ export class AnalisadorLexicoService {
    * @param text Array contendo linhas de código-fonte
    */
   analisar(text: string[]): void {
+    // Limpa todos os erros contidos no serviço de erros para a nova análise
+    this.errorsService.limpar();
     // Varrendo cada linha do editor
     for (let row = 0; row < text.length; row++) {
       const linha = text[row];
+      // Se a linha for vazia, ignore-a
+      if (linha == '') continue;
       const r = new Token();
       // Varrendo cada coluna da linha
       for (let col = 0; col < linha.length; col++) {
@@ -46,9 +51,13 @@ export class AnalisadorLexicoService {
         // Verifica se o caractere é válido no alfabeto
         if (!this.estaNoAlfabeto(caractereAtual)) {
           console.log(`Erro na linha ${row + 1}:${col + 1}!`);
+          // Adiciona um erro do tipo 100 ao serviço de erros
+          this.errorsService.addErro(100, row, col);
           continue;
         }
       }
     }
+    // Emite os novos valores de erros manualmente
+    this.errorsService.emitir();
   }
 }
