@@ -12,7 +12,15 @@ tr.detail-row {
   display: flex;
 }
 
+.element-row {
+  cursor: pointer;
+}
+
 .code-line {
   padding: 8px 16px;
   font-family: monospace;
+}
+
+.element-row:not(.expanded-row):hover {
+  background-color: #505050;
 }

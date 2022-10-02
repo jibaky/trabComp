@@ -1,6 +1,14 @@
-import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  OnInit,
+  QueryList,
+  ViewChild,
+  ViewChildren,
+} from '@angular/core';
 import { AnalisadorLexicoService } from 'src/app/services/analisador-lexico/analisador-lexico.service';
 import { Erro, ErrorsService } from 'src/app/services/errors/errors.service';
+import { FilemanagerService } from 'src/app/services/filemanager/filemanager.service';
 
 class EditorLine {
   line: number;
@@ -15,6 +23,7 @@ class EditorLine {
 export class EditorComponent implements OnInit {
   @ViewChild('editor') editorElement: ElementRef;
   @ViewChild('lineNumbersContainer') lineNumbersElement: ElementRef;
+  @ViewChildren('lineNumberItem') lineNumberElement: QueryList<any>;
   /** Armazena os números das linhas de código-fonte. No futuro será usado para indicar erros também. */
   lineNumbers: number[] = [1];
   /** Guarda o valor do editor de texto a cada processamento para verificar se houveram edições */
@@ -24,10 +33,17 @@ export class EditorComponent implements OnInit {
 
   constructor(
     private analisadorLexico: AnalisadorLexicoService,
-    private errorsService: ErrorsService
+    private errorsService: ErrorsService,
+    private fileManagerService: FilemanagerService
   ) {}
 
-  ngOnInit(): void {}
+  ngOnInit(): void {
+    this.fileManagerService.novoArquivo$.subscribe((content: string) => {
+      if (content == '') return;
+      this.editorElement.nativeElement.value = content;
+      this.parseLines();
+    });
+  }
 
   ngAfterViewInit(): void {
     // Não perguntem. Hax hax hax.
@@ -35,11 +51,21 @@ export class EditorComponent implements OnInit {
       this.parseLines();
     }, 50);
 
+    this.lineNumberElement.changes.subscribe((t) => {
+      this.ngForRendered();
+    });
+
     // Esse trecho diz que toda vez que o BehaviorSubject chamado messages$ emitir novos valores (.next)
     // a função passada como parâmetro deve ser executada.
     this.errorsService.messages$.subscribe((messages: Erro[]) => {
       this.processaErros(messages);
     });
+  }
+
+  ngForRendered(): void {
+    console.log('all set?');
+    if (this.analiseAoVivo)
+      this.processaErros(this.errorsService.messages$.value);
   }
 
   processaErros(messages: Erro[]): void {
@@ -65,7 +91,7 @@ export class EditorComponent implements OnInit {
     const line = this.lineNumbersElement.nativeElement.querySelector(
       `.line-number:nth-child(${erro.line + 1})`
     );
-    line.classList.add('has-error');
+    line?.classList.add('has-error');
   }
 
   /**

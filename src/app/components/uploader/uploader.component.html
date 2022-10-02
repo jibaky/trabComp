@@ -1,2 +1,18 @@
-<button (click) = "uploadInput.click()" mat-raised-button color = "accent">Abrir Arquivo</button>
-    <input (change) = "inputChange(uploadInput?.files[0])" class="oculto" #uploadInput type="file">
+<button
+  (click)="uploadInput.value = ''; uploadInput.click()"
+  (document:keydown.control.o)="
+    $event.preventDefault(); uploadInput.value = ''; uploadInput.click()
+  "
+  mat-raised-button
+  color="accent"
+>
+  Abrir Arquivo
+  <mat-icon class="outlined">file_upload</mat-icon>
+  <span class="hotkey">ctrl+o</span>
+</button>
+<input
+  (change)="inputChange(uploadInput?.files[0])"
+  class="oculto"
+  #uploadInput
+  type="file"
+/>
