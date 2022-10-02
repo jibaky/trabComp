@@ -5,21 +5,21 @@ import { FilemanagerService } from 'src/app/services/filemanager/filemanager.ser
 @Component({
   selector: 'app-uploader',
   templateUrl: './uploader.component.html',
-  styleUrls: ['./uploader.component.scss']
+  styleUrls: ['./uploader.component.scss'],
 })
 export class UploaderComponent implements OnInit {
+  constructor(
+    private fileManagerService: FilemanagerService,
+    private snackBar: MatSnackBar
+  ) {}
 
-    constructor(private fileManagerService: FilemanagerService, private snackBar: MatSnackBar) { }
-
-  ngOnInit(): void {
-  }
+  ngOnInit(): void {}
   inputChange(arquivo: File | null | undefined): void {
     if (arquivo == null || arquivo == undefined) return;
-    this.fileManagerService.upload(arquivo).then((resultado) => {console.log("Funfou")}).catch((resultado) => { 
-      let snackBarRef = this.snackBar.open(resultado,"okay", {
-        duration: 5000
+    this.fileManagerService.upload(arquivo).catch((resultado) => {
+      let snackBarRef = this.snackBar.open(resultado, 'okay', {
+        duration: 5000,
       });
     });
   }
-
 }

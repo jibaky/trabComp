@@ -1,15 +1,12 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 
 @Component({
   selector: 'app-analise-lexica',
   templateUrl: './analise-lexica.component.html',
-  styleUrls: ['./analise-lexica.component.scss']
+  styleUrls: ['./analise-lexica.component.scss'],
 })
 export class AnaliseLexicaComponent implements OnInit {
+  constructor() {}
 
-  constructor() { }
-
-  ngOnInit(): void {
-  }
-
+  ngOnInit(): void {}
 }

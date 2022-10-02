@@ -16,11 +16,26 @@ import { MatCardModule } from '@angular/material/card';
 import { AboutComponent } from './pages/about/about.component';
 import { AnaliseLexicaComponent } from './pages/analise-lexica/analise-lexica.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { EditorComponent } from './components/editor/editor.component';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { FormsModule } from '@angular/forms';
+import { ErrorConsoleComponent } from './components/error-console/error-console.component';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { UploaderComponent } from './components/uploader/uploader.component';
-import {MatSnackBarModule} from '@angular/material/snack-bar';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
-  declarations: [AppComponent, HomeComponent, HomePageComponent, AboutComponent, AnaliseLexicaComponent, UploaderComponent],
+  declarations: [
+    AppComponent,
+    HomeComponent,
+    HomePageComponent,
+    AboutComponent,
+    AnaliseLexicaComponent,
+    EditorComponent,
+    ErrorConsoleComponent,
+    UploaderComponent,
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -33,7 +48,11 @@ import {MatSnackBarModule} from '@angular/material/snack-bar';
     MatListModule,
     MatCardModule,
     MatFormFieldModule,
-    MatSnackBarModule
+    MatSlideToggleModule,
+    FormsModule,
+    MatTableModule,
+    MatTooltipModule,
+    MatSnackBarModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

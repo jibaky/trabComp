@@ -1,0 +1,79 @@
+.editor-container {
+  display: flex;
+  max-height: 64%;
+  min-height: 400px;
+  overflow: auto;
+  overflow-x: hidden;
+}
+
+.line-numbers {
+  width: 60px;
+  margin: 16px;
+  margin-right: 0;
+  font-family: monospace;
+  font-size: 18px;
+  text-align: left;
+  overflow: visible;
+}
+
+.line-number {
+  padding: 3px 5px;
+  padding-left: 24px;
+  color: #607d8b;
+  width: 100vw;
+}
+
+.line-number span {
+  text-align: right;
+  width: 30px;
+  padding-right: 6px;
+  display: block;
+}
+
+.line-number:nth-child(even) {
+  background-color: rgba(255, 255 ,255, 0.05);
+}
+
+.line-number.has-error {
+  background-color: rgba(244, 67, 54, 1);
+  color: white;
+}
+
+.line-number:nth-child(even).has-error {
+  background-color: rgba(264, 87, 74, 1);
+}
+
+.editor {
+  width: 100%;
+  box-sizing: content-box;
+  font-size: 18px;
+  line-height: 27px;
+  padding: 16px;
+  border: none;
+  background-color: rgba(48, 48, 48, 0.6);
+  color: #e0e0e0;
+  overflow: hidden;
+  resize: none;
+  outline: none;
+  min-height: inherit !important;
+  word-break: break-all;
+}
+
+.button {
+  margin-right: 16px;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.tip {
+  margin-left: 8px;
+  opacity: 0.4;
+}
