@@ -22,6 +22,8 @@ import { FormsModule } from '@angular/forms';
 import { ErrorConsoleComponent } from './components/error-console/error-console.component';
 import { MatTableModule } from '@angular/material/table';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { UploaderComponent } from './components/uploader/uploader.component';
+import { MatSnackBarModule } from '@angular/material/snack-bar';
 
 @NgModule({
   declarations: [
@@ -32,6 +34,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     AnaliseLexicaComponent,
     EditorComponent,
     ErrorConsoleComponent,
+    UploaderComponent,
   ],
   imports: [
     BrowserModule,
@@ -49,6 +52,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
     FormsModule,
     MatTableModule,
     MatTooltipModule,
+    MatSnackBarModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
