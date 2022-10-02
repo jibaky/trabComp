@@ -1,0 +1,2 @@
+<button (click) = "uploadInput.click()" mat-raised-button color = "accent">Abrir Arquivo</button>
+    <input (change) = "inputChange(uploadInput?.files[0])" class="oculto" #uploadInput type="file">
