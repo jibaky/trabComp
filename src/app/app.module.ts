@@ -16,9 +16,11 @@ import { MatCardModule } from '@angular/material/card';
 import { AboutComponent } from './pages/about/about.component';
 import { AnaliseLexicaComponent } from './pages/analise-lexica/analise-lexica.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { UploaderComponent } from './components/uploader/uploader.component';
+import {MatSnackBarModule} from '@angular/material/snack-bar';
 
 @NgModule({
-  declarations: [AppComponent, HomeComponent, HomePageComponent, AboutComponent, AnaliseLexicaComponent],
+  declarations: [AppComponent, HomeComponent, HomePageComponent, AboutComponent, AnaliseLexicaComponent, UploaderComponent],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -31,6 +33,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatListModule,
     MatCardModule,
     MatFormFieldModule,
+    MatSnackBarModule
   ],
   providers: [],
   bootstrap: [AppComponent],
