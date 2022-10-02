@@ -1,0 +1,41 @@
+<div class="actions">
+  <div class="spacer"></div>
+  <button
+    [disabled]="analiseAoVivo"
+    class="button"
+    (click)="analisar()"
+    color="accent"
+    mat-raised-button
+  >
+    Executar análise léxica
+  </button>
+  <mat-slide-toggle [(ngModel)]="analiseAoVivo" color="accent"
+    >Analisar ao vivo</mat-slide-toggle
+  >
+</div>
+<div class="editor-container">
+  <div class="line-numbers" #lineNumbersContainer>
+    <div class="line-number" *ngFor="let el of lineNumbers; let i = index">
+      <span>{{ i + 1 }}</span>
+    </div>
+  </div>
+  <textarea
+    type="text"
+    class="editor"
+    (keyup)="parseLines()"
+    (keydown)="parseLines()"
+    #editor
+  >
+teste = (1 + 2) > 4;
+a = 25.9;
+b = 3;
+c = a + b;
+d = c > 4;</textarea
+  >
+  <!-- >
+teste = (1 + 2) > 4;
+a = 25.9;
+b = 3;
+c = a + b;
+d = c > 4;</textarea -->
+</div>

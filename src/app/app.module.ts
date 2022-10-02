@@ -16,9 +16,19 @@ import { MatCardModule } from '@angular/material/card';
 import { AboutComponent } from './pages/about/about.component';
 import { AnaliseLexicaComponent } from './pages/analise-lexica/analise-lexica.component';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { EditorComponent } from './components/editor/editor.component';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { FormsModule } from '@angular/forms';
 
 @NgModule({
-  declarations: [AppComponent, HomeComponent, HomePageComponent, AboutComponent, AnaliseLexicaComponent],
+  declarations: [
+    AppComponent,
+    HomeComponent,
+    HomePageComponent,
+    AboutComponent,
+    AnaliseLexicaComponent,
+    EditorComponent,
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
@@ -31,6 +41,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatListModule,
     MatCardModule,
     MatFormFieldModule,
+    MatSlideToggleModule,
+    FormsModule,
   ],
   providers: [],
   bootstrap: [AppComponent],
