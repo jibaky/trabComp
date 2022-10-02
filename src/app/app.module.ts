@@ -19,6 +19,9 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { EditorComponent } from './components/editor/editor.component';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { FormsModule } from '@angular/forms';
+import { ErrorConsoleComponent } from './components/error-console/error-console.component';
+import { MatTableModule } from '@angular/material/table';
+import { MatTooltipModule } from '@angular/material/tooltip';
 
 @NgModule({
   declarations: [
@@ -28,6 +31,7 @@ import { FormsModule } from '@angular/forms';
     AboutComponent,
     AnaliseLexicaComponent,
     EditorComponent,
+    ErrorConsoleComponent,
   ],
   imports: [
     BrowserModule,
@@ -43,6 +47,8 @@ import { FormsModule } from '@angular/forms';
     MatFormFieldModule,
     MatSlideToggleModule,
     FormsModule,
+    MatTableModule,
+    MatTooltipModule,
   ],
   providers: [],
   bootstrap: [AppComponent],

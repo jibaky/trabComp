@@ -11,6 +11,8 @@ export class Erro {
   text: string;
   /** Código do erro para referência */
   code: number;
+  /** Armazena a linha de código que originou o erro formatada para destacar o erro */
+  formattedLine: string;
 }
 
 @Injectable({
@@ -42,6 +44,7 @@ export class ErrorsService {
    */
   limpar(): void {
     this.messages = [];
+    this.emitir();
   }
 
   /**
@@ -49,13 +52,13 @@ export class ErrorsService {
    * @param code código do erro
    * @param line linha onde o erro ocorreu
    * @param column coluna da linha onde o erro ocorreu
-   * @param emit emite imediatamente uma nova lista de erros caso seja true
+   * @param linhaOriginal conteúdo original da linha que causou o erro
    */
   addErro(
     code: number,
     line: number,
     column: number,
-    emit: boolean = false
+    linhaOriginal: string
   ): void {
     if (line < 0 || column < 0) return;
 
@@ -71,10 +74,20 @@ export class ErrorsService {
     novoErro.text = errorMessage.message;
     novoErro.line = line;
     novoErro.column = column;
+    novoErro.formattedLine = this.formatarLinha(linhaOriginal, column);
+
     // Adiciona o novo erro à lista de erros do serviço
     this.messages.push(novoErro);
 
-    if (emit) this.messages$.next(this.messages);
+    this.messages$.next(this.messages);
+  }
+
+  private formatarLinha(linha: string, col: number): string {
+    const part = linha
+      .slice(col)
+      .replace(linha[col], `<span class="destaque-erro">${linha[col]}</span>`);
+
+    return linha.substring(0, col) + part;
   }
 
   /**

@@ -1,6 +1,6 @@
 .editor-container {
   display: flex;
-  max-height: 80%;
+  max-height: 64%;
   min-height: 400px;
   overflow: auto;
   overflow-x: hidden;
@@ -71,4 +71,9 @@
 
 .spacer {
   flex: 1 1 auto;
+}
+
+.tip {
+  margin-left: 8px;
+  opacity: 0.4;
 }

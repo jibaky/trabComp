@@ -1,0 +1,18 @@
+table {
+  width: 100%;
+}
+
+tr.detail-row {
+  height: 0;
+}
+
+
+.element-detail {
+  overflow: hidden;
+  display: flex;
+}
+
+.code-line {
+  padding: 8px 16px;
+  font-family: monospace;
+}

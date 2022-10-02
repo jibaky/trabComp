@@ -9,8 +9,16 @@
   >
     Executar análise léxica
   </button>
-  <mat-slide-toggle [(ngModel)]="analiseAoVivo" color="accent"
+  <mat-slide-toggle
+    (change)="analiseAoVivo ? analisar() : null"
+    [(ngModel)]="analiseAoVivo"
+    color="accent"
     >Analisar ao vivo</mat-slide-toggle
+  >
+  <mat-icon
+    class="outlined tip"
+    matTooltip="Analisar ao vivo faz com que o código-fonte seja analisado em tempo real."
+    >help_outline</mat-icon
   >
 </div>
 <div class="editor-container">
@@ -23,7 +31,7 @@
     type="text"
     class="editor"
     (keyup)="parseLines()"
-    (keydown)="parseLines()"
+    (keydown)="parseLines($event)"
     #editor
   >
 teste = (1 + 2) > 4;

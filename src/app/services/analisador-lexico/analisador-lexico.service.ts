@@ -52,7 +52,7 @@ export class AnalisadorLexicoService {
         if (!this.estaNoAlfabeto(caractereAtual)) {
           console.log(`Erro na linha ${row + 1}:${col + 1}!`);
           // Adiciona um erro do tipo 100 ao serviço de erros
-          this.errorsService.addErro(100, row, col);
+          this.errorsService.addErro(100, row, col, linha);
           continue;
         }
       }

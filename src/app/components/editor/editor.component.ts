@@ -71,28 +71,62 @@ export class EditorComponent implements OnInit {
   /**
    * Gera uma lista com os números de linhas de acordo com a quantidade de linhas escritas no editor.
    */
-  parseLines(): void {
-    // Se o conteúdo do código-fonte foi alterado, remover os erros que podem ter ficado obsoletos
+  parseLines(e: KeyboardEvent | null = null): void {
+    /** Indica se o texto foi alterado desde a última execução da função */
+    const alterado = this.editorElement.nativeElement.value != this.editorCache;
+    // TODO: REMOVER se a função de tabular não for implementada
+    // if (e?.code === 'Tab') {
+    //   this.tabular(e?.shiftKey);
+    //   e.preventDefault();
+    // }
+
+    // Se o conteúdo do código-fonte foi alterado e não está no modo ao-vivo, é preciso limpar os erros
+    // que podem estar osbsoletos na tela.
     // TODO: pensar numa forma melhor de fazer isso
-    // if (this.editorElement.nativeElement.value != this.editorCache)
-    //   this.resetErros();
+    if (!this.analiseAoVivo && alterado) {
+      this.resetErros();
+      this.errorsService.limpar();
+    }
     // Conta quantas linhas existem no código-fonte
     const count = this.editorElement.nativeElement.value.split('\n').length;
     // Ajusta a largura do campo de texto em si
     this.ajustaAltura(count);
-
+    // Se faltam números de linhas, adiciona a diferença
     while (this.lineNumbers.length < count) {
       this.lineNumbers.push(this.lineNumbers.length);
     }
+    // Se estão sobrando números de linhas, remove a diferença
     while (this.lineNumbers.length > count) {
       this.lineNumbers.pop();
     }
-
-    if (this.analiseAoVivo) this.analisar();
+    // Chama a análise imediatamente caso o modo ao vivo esteja ativado
+    if (this.analiseAoVivo && alterado) this.analisar();
 
     // Guarda o conteúdo do editor de texto para a próxima comparação
     this.editorCache = this.editorElement.nativeElement.value;
   }
+
+  // TODO: REMOVER SE A FUNÇÃO DE TABULAR NÃO FOR IMPLEMENTADA
+  // private tabular(shiftKey: boolean): void {
+  //   const el = this.editorElement.nativeElement;
+  //   const selectionStart = el.selectionStart;
+  //   const linhas = el.value.substring(0, selectionStart).split('\n');
+  //   console.log('tabulando...', linhas[linhas.length - 1]);
+  //   if (!shiftKey)
+  //     linhas[linhas.length - 1] = '    ' + linhas[linhas.length - 1];
+  //   else {
+  //     if (linhas[linhas.length - 1].substring(0, 4) === '    ')
+  //       linhas[linhas.length - 1] = linhas[linhas.length - 1].substring(4);
+  //   }
+
+  //   const value = this.editorElement.nativeElement.value.split('\n');
+  //   value[linhas.length - 1] = linhas[linhas.length - 1];
+  //   this.editorElement.nativeElement.value = value.join('\n');
+  //   this.editorElement.nativeElement.setSelectionRange(
+  //     shiftKey ? selectionStart - 4 : selectionStart + 4,
+  //     shiftKey ? selectionStart - 4 : selectionStart + 4
+  //   );
+  // }
 
   /**
    * Função necessária para ajustar o tamanho do textarea que contém o código fonte conforme ele cresce

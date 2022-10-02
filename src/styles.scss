@@ -7,3 +7,17 @@ body {
   --color-primary: #7b1fa2;
   --color-accent: #69f0ae;
 }
+
+/** Essa classe transforma ícones preenchidos em ícones outlined */
+.outlined {
+  font-family: 'Material Icons Outlined';
+}
+
+/** Classe colocada em linhas de erro no componente de erro */
+.destaque-erro {
+  color: white;
+  background: #f44336a1;
+  display: inline-block;
+  padding: 2px 4px;
+  border-radius: 4px;
+}
