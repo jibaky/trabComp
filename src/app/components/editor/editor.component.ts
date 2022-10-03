@@ -63,7 +63,6 @@ export class EditorComponent implements OnInit {
   }
 
   ngForRendered(): void {
-    console.log('all set?');
     if (this.analiseAoVivo)
       this.processaErros(this.errorsService.messages$.value);
   }

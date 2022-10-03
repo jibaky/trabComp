@@ -164,7 +164,6 @@ export class AnalisadorLexicoService {
       }
     }
 
-    console.log(this.tokens);
     this.tokens$.next(this.tokens);
     // Emite os novos valores de erros manualmente
     this.errorsService.emitir();
