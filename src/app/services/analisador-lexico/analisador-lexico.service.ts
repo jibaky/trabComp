@@ -87,6 +87,8 @@ export class AnalisadorLexicoService {
     // Limpa todos os erros contidos no serviço de erros para a nova análise
     this.errorsService.limpar();
     this.tokens = [];
+    /** Variável responsável por ignorar caracteres em comentários de múltiplas linhas */
+    let inComment = false;
     // Varrendo cada linha do editor
     for (let row = 0; row < text.length; row++) {
       const linha = text[row];
@@ -97,6 +99,13 @@ export class AnalisadorLexicoService {
       for (let col = 0; col < linha.length; col++) {
         const caractereAtual = linha[col];
         // Ignora linhas depois de encontrar um comentário
+        if (caractereAtual === '{') inComment = true;
+        if (inComment && caractereAtual === '}') {
+          inComment = false;
+          continue;
+        }
+        if (inComment === true) continue;
+        // Caso sejam comentários de uma única linha
         if (
           col < linha.length - 1 &&
           caractereAtual == linha[col + 1] &&
