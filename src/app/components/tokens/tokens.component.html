@@ -1,0 +1,49 @@
+<table
+  mat-table
+  [dataSource]="analisadorLexicoService.tokens$"
+  multiTemplateDataRows
+>
+  <ng-container matColumnDef="token">
+    <th mat-header-cell *matHeaderCellDef>Token</th>
+    <td mat-cell *matCellDef="let element">
+      <span
+        [class.error]="
+          element.meaning === 'identificador inválido' ||
+          element.meaning === 'número real mal formatado'
+        "
+        [class.number]="
+          element.meaning === 'número real' ||
+          element.meaning === 'número natural'
+        "
+        [class.boolean]="
+          element.meaning === 'boolean-verdadeiro' ||
+          element.meaning === 'boolean-falso'
+        "
+        [class.operator]="
+          element.meaning === 'operação-soma' ||
+          element.meaning === 'operação-subtração' ||
+          element.meaning === 'operação-ou' ||
+          element.meaning === 'operação-produto' ||
+          element.meaning === 'operação-divisão' ||
+          element.meaning === 'operação-e' ||
+          element.meaning === 'operação-não'
+        "
+        [class.identifier]="element.meaning === 'identificador válido'"
+        [class.ponto-e-virgula]="element.meaning === 'ponto-e-vírgula'"
+        class="token"
+        >{{ element.token }}</span
+      >
+    </td>
+  </ng-container>
+  <ng-container matColumnDef="meaning">
+    <th mat-header-cell *matHeaderCellDef>Descrição</th>
+    <td mat-cell *matCellDef="let element">{{ element.meaning }}</td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="columnsToDisplay; sticky: true"></tr>
+  <tr
+    mat-row
+    *matRowDef="let element; columns: columnsToDisplay"
+    class="element-row"
+  ></tr>
+</table>

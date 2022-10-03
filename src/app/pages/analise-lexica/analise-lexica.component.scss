@@ -14,4 +14,27 @@ error-console {
   position: absolute;
   bottom: 0;
   overflow: auto;
+  z-index: 2;
+}
+
+app-editor {
+  position: relative;
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  padding: 16px;
+  width: auto;
+  position: absolute;
+  right: 0;
+  z-index: 4;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+mat-drawer-container {
+  height: 100%;
 }

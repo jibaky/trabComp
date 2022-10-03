@@ -1,4 +1,5 @@
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
+import { AnalisadorLexicoService } from 'src/app/services/analisador-lexico/analisador-lexico.service';
 
 @Component({
   selector: 'app-analise-lexica',
@@ -6,7 +7,7 @@ import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
   styleUrls: ['./analise-lexica.component.scss'],
 })
 export class AnaliseLexicaComponent implements OnInit {
-  constructor() {}
+  constructor(public analisadorLexico: AnalisadorLexicoService) {}
 
   ngOnInit(): void {}
 }

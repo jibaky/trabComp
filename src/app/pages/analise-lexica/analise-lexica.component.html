@@ -1,4 +1,31 @@
-<div class="container">
-  <app-editor></app-editor>
-  <error-console></error-console>
-</div>
+<mat-drawer-container autosize [hasBackdrop]="false">
+  <mat-drawer #tokensDrawer mode="side" position="end" class="token-drawer">
+    <app-tokens></app-tokens>
+  </mat-drawer>
+  <div class="container">
+    <div class="actions">
+      <div class="spacer"></div>
+      <button
+        [disabled]="analisadorLexico.tokens$.value.length === 0"
+        class="button"
+        type="button"
+        mat-stroked-button
+        (click)="tokensDrawer.toggle()"
+        (document:keydown.control.k)="
+          $event.preventDefault();
+          analisadorLexico.tokens$.value.length === 0
+            ? null
+            : tokensDrawer.toggle()
+        "
+      >
+        Tokens
+        <mat-icon>{{
+          tokensDrawer.opened ? "chevron_right" : "chevron_left"
+        }}</mat-icon>
+        <span class="hotkey">ctrl+k</span>
+      </button>
+    </div>
+    <app-editor></app-editor>
+    <error-console></error-console>
+  </div>
+</mat-drawer-container>
