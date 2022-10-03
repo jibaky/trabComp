@@ -1,0 +1,36 @@
+table {
+  width: 300px;
+}
+
+.token {
+  display: inline-block;
+  border-radius: 4px;
+  background-color: #212121;
+  padding: 3px 6px;
+  max-width: 95px;
+  word-wrap: break-word;
+}
+
+.token.error {
+  background-color: #c62828;
+}
+
+.token.number {
+  background-color: #303f9f;
+}
+
+.token.boolean {
+  background-color: #ad1457;
+}
+
+.token.operator {
+  background-color: #546e7a;
+}
+
+.token.identifier {
+  background-color: #2e7d32;
+}
+
+.token.ponto-e-virgula {
+  background-color: rgba(33, 33, 33, 0.39);
+}

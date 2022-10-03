@@ -60,7 +60,7 @@
 }
 
 .button {
-  margin-right: 16px;
+  margin: 0 8px;
 }
 
 .actions {
@@ -74,6 +74,14 @@
 }
 
 .tip {
-  margin-left: 8px;
+  margin: 0 8px;
   opacity: 0.4;
+}
+
+mat-drawer-container {
+  height: 100%;
+}
+
+.token-drawer {
+  max-height: 64%;
 }

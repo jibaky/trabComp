@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
+import { BehaviorSubject } from 'rxjs';
 import { ErrorsService } from '../errors/errors.service';
 
-class Token {
+export class Token {
   token: string = '';
   meaning: string = '';
 }
@@ -16,7 +17,7 @@ export class AnalisadorLexicoService {
       ''
     );
   /** Array com os caracteres que são capazes de dividir tokens */
-  private dividers = ' _;,():=<>+-*{}/'.split('');
+  private dividers = ' ;,():=<>+-*{}/'.split('');
   /** Lista de palavras reservadas válidas */
   private reservedWords = [
     { token: 'program', desc: 'programa' },
@@ -62,6 +63,8 @@ export class AnalisadorLexicoService {
   private commentChar = '/';
   /** Lista de tokens encontradas no código-fonte */
   tokens: Token[] = [];
+  /** Observable que emite listas de tokens processadas */
+  tokens$ = new BehaviorSubject<Token[]>([]);
 
   constructor(private errorsService: ErrorsService) {}
 
@@ -162,6 +165,7 @@ export class AnalisadorLexicoService {
     }
 
     console.log(this.tokens);
+    this.tokens$.next(this.tokens);
     // Emite os novos valores de erros manualmente
     this.errorsService.emitir();
   }

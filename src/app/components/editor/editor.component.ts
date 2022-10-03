@@ -32,7 +32,7 @@ export class EditorComponent implements OnInit {
   analiseAoVivo = true;
 
   constructor(
-    private analisadorLexico: AnalisadorLexicoService,
+    public analisadorLexico: AnalisadorLexicoService,
     private errorsService: ErrorsService,
     private fileManagerService: FilemanagerService
   ) {}

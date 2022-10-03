@@ -1,6 +1,5 @@
 <div class="actions">
   <app-uploader></app-uploader>
-  <div class="spacer"></div>
   <button
     [disabled]="analiseAoVivo"
     class="button"
@@ -25,6 +24,7 @@
     matTooltip="Analisar ao vivo faz com que o código-fonte seja analisado em tempo real."
     >help_outline</mat-icon
   >
+  <div class="spacer"></div>
 </div>
 <div class="editor-container">
   <div class="line-numbers" #lineNumbersContainer>
@@ -44,9 +44,9 @@
     #editor
   ></textarea>
   <!-- >
-teste = (1 + 2) > 4;
-a = 25.9;
-b = 3;
-c = a + b;
-d = c > 4;</textarea -->
+  teste = (1 + 2) > 4;
+  a = 25.9;
+  b = 3;
+  c = a + b;
+  d = c > 4;</textarea -->
 </div>
