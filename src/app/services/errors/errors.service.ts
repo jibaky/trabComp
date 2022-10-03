@@ -31,6 +31,11 @@ export class ErrorsService {
       message:
         'Número real mal-formado. Todo número real deve ser no formato <int>.<int>.',
     },
+    {
+      code: 102,
+      message:
+        'Identificador inválido. Um identificador válido deve começar com letra ou _ (underline).',
+    },
   ];
 
   private messages: Erro[] = [];
@@ -53,12 +58,14 @@ export class ErrorsService {
    * @param line linha onde o erro ocorreu
    * @param column coluna da linha onde o erro ocorreu
    * @param linhaOriginal conteúdo original da linha que causou o erro
+   * @param length valor opcional indicando a largura da região para destacar como erro
    */
   addErro(
     code: number,
     line: number,
     column: number,
-    linhaOriginal: string
+    linhaOriginal: string,
+    length?: number
   ): void {
     if (line < 0 || column < 0) return;
 
@@ -74,7 +81,7 @@ export class ErrorsService {
     novoErro.text = errorMessage.message;
     novoErro.line = line;
     novoErro.column = column;
-    novoErro.formattedLine = this.formatarLinha(linhaOriginal, column);
+    novoErro.formattedLine = this.formatarLinha(linhaOriginal, column, length);
 
     // Adiciona o novo erro à lista de erros do serviço
     this.messages.push(novoErro);
@@ -82,11 +89,28 @@ export class ErrorsService {
     this.messages$.next(this.messages);
   }
 
-  private formatarLinha(linha: string, col: number): string {
-    const part = linha
-      .slice(col)
-      .replace(linha[col], `<span class="destaque-erro">${linha[col]}</span>`);
-
+  /**
+   * Formata uma linha de erro usando HTML
+   * @param linha Conteúdo da linha com erro
+   * @param col Coluna onde o erro foi encontrado
+   * @param length Largura opcional que indica o tamanho do trecho com erro
+   * @returns string formatada em HTML
+   */
+  private formatarLinha(linha: string, col: number, length?: number): string {
+    let part;
+    if (!length || length === 1) {
+      part = linha
+        .slice(col)
+        .replace(
+          linha[col],
+          `<span class="destaque-erro">${linha[col]}</span>`
+        );
+    } else {
+      const substr = linha.substring(col, col + length + 1);
+      part = linha
+        .slice(col)
+        .replace(substr, `<span class="destaque-erro">${substr}</span>`);
+    }
     return linha.substring(0, col) + part;
   }
 
