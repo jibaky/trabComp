@@ -17,7 +17,7 @@ export class AnalisadorLexicoService {
       ''
     );
   /** Array com os caracteres que são capazes de dividir tokens */
-  private dividers = ' ;,():=<>+-*{}/'.split('');
+  private dividers = [' ',';',',','(',')',':','=','<','>','+','-','*','{','}','/','\t'];
   /** Lista de palavras reservadas válidas */
   private reservedWords = [
     { token: 'program', desc: 'programa' },
@@ -74,10 +74,10 @@ export class AnalisadorLexicoService {
    */
   private estaNoAlfabeto(char: string): boolean {
     if (char === '') return false;
-    // O caractere ' ' (espaço) existe para além do alfabeto, mas a função
+    // Os caracteres ' ' (espaço) e '\t' (tabulação) existe para além do alfabeto, mas a função
     // retornará true para o caso dele para que a execução não seja interrompida
     // indevidamente.
-    if (char === ' ') return true;
+    if (char === ' ' || char === '\t') return true;
 
     return this.alfabeto.includes(char);
   }
@@ -131,7 +131,7 @@ export class AnalisadorLexicoService {
             r = new Token();
           }
           // Se o caractere atual for um espaço, pode ignorá-lo
-          if (caractereAtual === ' ') continue;
+          if (caractereAtual === ' ' || caractereAtual === '\t') continue;
 
           // Verifica os divisores que tem alternativas de múltiplos caracteres
           if (caractereAtual === ':' && linha[col + 1] === '=') {
@@ -152,7 +152,7 @@ export class AnalisadorLexicoService {
           this.consolidarToken(r, row, col, linha);
           // Caso seja uma token com divisor composta, deve-se saltar 2x no loop de coluna
           if ([':=', '>=', '<=', '<>'].includes(r.token)) {
-            col += 2;
+            col += 1;
           }
           r = new Token();
           continue;
@@ -186,7 +186,7 @@ export class AnalisadorLexicoService {
     if (inComment) {
       this.errorsService.addErro(
         103,
-        text.length,
+        text.length-1,
         text[text.length - 1].length - 1,
         text[text.length - 1]
       );
@@ -227,6 +227,22 @@ export class AnalisadorLexicoService {
         linhaOriginal,
         token.token.length
       );
+      else if (token.meaning === 'identificador muito longo')
+      this.errorsService.addErro(
+        104,
+        linha,
+        coluna < token.token.length ? 0 : coluna - token.token.length,
+        linhaOriginal,
+        token.token.length
+         );
+      else if (token.meaning === 'número natural muito longo')
+      this.errorsService.addErro(
+        105,
+        linha,
+        coluna < token.token.length ? 0 : coluna - token.token.length,
+        linhaOriginal,
+        token.token.length
+         );
   }
 
   /**
@@ -240,9 +256,14 @@ export class AnalisadorLexicoService {
     // Verifica se é um número real
     if (/(^\.\d*$)|(^\d*\.$)/.test(token)) return 'número real mal formatado';
     else if (/^\d+\.\d+$/.test(token)) return 'número real';
-    else if (/^\d+$/.test(token)) return 'número natural';
+    else if (/^\d+$/.test(token)) 
+      if(token.length<=8) return 'número natural';
+      else return 'número natural muito longo'
     else if (/^[a-zA-z_][a-zA-z_0-9]*$/.test(token))
-      return 'identificador válido';
+      if(token.length<=15) return 'identificador válido';
+      else return 'identificador muito longo';
+
+        
     // Caso a token não tenha sido identifciada, retornar que é um identificador inválido
     return 'identificador inválido';
   }
