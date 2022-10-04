@@ -143,15 +143,18 @@ export class AnalisadorLexicoService {
           } else if (caractereAtual === '<') {
             if (linha[col + 1] === '=') r.token = '<='; // Caso seja <=
             else if (linha[col + 1] === '>') r.token = '<>'; // Caso seja <>
+            // Esse else é importante porque, caso ele não exista, a token que é apenas '<' não
+            // seria processada corretamente
+            else r.token = caractereAtual;
           } else r.token = caractereAtual;
           // Adiciona a token de divisor
           r.meaning = this.identificarToken(r.token);
           this.consolidarToken(r, row, col, linha);
-          r = new Token();
           // Caso seja uma token com divisor composta, deve-se saltar 2x no loop de coluna
           if ([':=', '>=', '<=', '<>'].includes(r.token)) {
             col += 2;
           }
+          r = new Token();
           continue;
         }
         // Caso não tenha encontrado um caractere divisor, acumule o caractere atual na token atual
