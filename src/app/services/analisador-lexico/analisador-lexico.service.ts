@@ -163,6 +163,16 @@ export class AnalisadorLexicoService {
         this.consolidarToken(r, row, linha.length - 1, linha);
       }
     }
+    // Se o arquivo acabou e o modo inComment ainda estava true, então
+    // faltou fechar o comentário.
+    if (inComment) {
+      this.errorsService.addErro(
+        103,
+        text.length,
+        text[text.length - 1].length - 1,
+        text[text.length - 1]
+      );
+    }
 
     this.tokens$.next(this.tokens);
     // Emite os novos valores de erros manualmente
