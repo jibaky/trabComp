@@ -156,9 +156,24 @@ export class AnalisadorLexicoService {
           }
           r = new Token();
           continue;
+        } else if (caractereAtual === '.' && r.token === 'end') {
+          // O algoritmo entra nesse if caso haja um ponto final precedido de um "end",
+          // o que indica que o ponto não é um indicador de casa decimal de um número real,
+          // mas sim a token ponto-final
+
+          // Consolida o "end"
+          r.meaning = this.identificarToken(r.token);
+          this.consolidarToken(r, row, col, linha);
+          // Consolida a token de ponto
+          r = new Token();
+          r.token = caractereAtual;
+          r.meaning = this.identificarToken(r.token);
+          this.consolidarToken(r, row, col, linha);
+          r = new Token();
         }
-        // Caso não tenha encontrado um caractere divisor, acumule o caractere atual na token atual
-        r.token += caractereAtual;
+        // Caso não tenha encontrado um caractere divisor ou ponto-final, acumule o caractere
+        // atual na token atual
+        else r.token += caractereAtual;
       }
       // Adiciona a token restante que está acumulada em r
       if (r.token !== '') {
