@@ -163,7 +163,7 @@ export class AnalisadorLexicoService {
         this.consolidarToken(r, row, linha.length - 1, linha);
       }
     }
-
+    console.log(this.tokens);
     this.tokens$.next(this.tokens);
     // Emite os novos valores de erros manualmente
     this.errorsService.emitir();

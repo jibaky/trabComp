@@ -25,6 +25,7 @@ import { MatTooltipModule } from '@angular/material/tooltip';
 import { UploaderComponent } from './components/uploader/uploader.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { TokensComponent } from './components/tokens/tokens.component';
+import { DownloaderComponent } from './components/downloader/downloader.component';
 
 @NgModule({
   declarations: [
@@ -37,6 +38,7 @@ import { TokensComponent } from './components/tokens/tokens.component';
     ErrorConsoleComponent,
     UploaderComponent,
     TokensComponent,
+    DownloaderComponent,
   ],
   imports: [
     BrowserModule,

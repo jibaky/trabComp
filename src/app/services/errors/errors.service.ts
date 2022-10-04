@@ -36,6 +36,11 @@ export class ErrorsService {
       message:
         'Identificador inválido. Um identificador válido deve começar com letra ou _ (underline).',
     },
+    {
+      code: 103,
+      message:
+        'Fim de arquivo inesperado.',
+    },
   ];
 
   private messages: Erro[] = [];
