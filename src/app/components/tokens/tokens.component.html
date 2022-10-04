@@ -4,7 +4,7 @@
   multiTemplateDataRows
 >
   <ng-container matColumnDef="token">
-    <th mat-header-cell *matHeaderCellDef>Token</th>
+    <th mat-header-cell *matHeaderCellDef>Lexema</th>
     <td mat-cell *matCellDef="let element">
       <span
         [class.error]="
@@ -36,7 +36,7 @@
     </td>
   </ng-container>
   <ng-container matColumnDef="meaning">
-    <th mat-header-cell *matHeaderCellDef>Descrição</th>
+    <th mat-header-cell *matHeaderCellDef>Token</th>
     <td mat-cell *matCellDef="let element">{{ element.meaning }}</td>
   </ng-container>
 

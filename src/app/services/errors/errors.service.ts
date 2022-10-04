@@ -39,7 +39,17 @@ export class ErrorsService {
     {
       code: 103,
       message:
-        'Fim inesperado do arquivo. Você se lembrou de fechar todos os parênteses e chaves que abriu?',
+        'Fim inesperado do arquivo. Você se lembrou de fechar todas as chaves que abriu?',
+    },
+    {
+      code: 104,
+      message:
+        'Identificador maior que 15 caracteres. Diminua o tamanho do identificador.',
+    },
+    {
+      code: 105,
+      message:
+        'Naturais com mais que 8 dígitos não são suportados.',
     },
   ];
 
