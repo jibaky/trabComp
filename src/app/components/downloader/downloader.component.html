@@ -1,0 +1,13 @@
+<button
+  (click)="download()"
+  (document:keydown.control.s)="
+    $event.preventDefault(); 
+    download()
+  "
+  mat-raised-button
+  color="accent"
+>
+  Salvar Arquivo
+  <mat-icon class="outlined">file_upload</mat-icon>
+  <span class="hotkey">ctrl+s</span>
+</button>
