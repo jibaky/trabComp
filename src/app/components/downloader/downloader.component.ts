@@ -1,4 +1,6 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, Input, OnInit } from '@angular/core';
+import { FilemanagerService } from 'src/app/services/filemanager/filemanager.service';
+
 
 @Component({
   selector: 'app-downloader',
@@ -6,10 +8,24 @@ import { Component, OnInit } from '@angular/core';
   styleUrls: ['./downloader.component.scss']
 })
 export class DownloaderComponent implements OnInit {
-
-  constructor() { }
+  @Input('content') editorContent: string;
+  constructor(
+    private fileManagerService: FilemanagerService
+  ) { }
 
   ngOnInit(): void {
   }
+  download(): void{
+    let file = this.fileManagerService.returnNewFile(this.editorContent);
+    const link = document.createElement('a');
+    const url = URL.createObjectURL(file)
 
+    link.href = url;
+    link.download = file.name;
+    document.body.appendChild(link);
+    link.click();
+  
+    document.body.removeChild(link);
+    window.URL.revokeObjectURL(url);
+  }
 }
