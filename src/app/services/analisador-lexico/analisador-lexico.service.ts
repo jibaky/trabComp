@@ -143,19 +143,37 @@ export class AnalisadorLexicoService {
           } else if (caractereAtual === '<') {
             if (linha[col + 1] === '=') r.token = '<='; // Caso seja <=
             else if (linha[col + 1] === '>') r.token = '<>'; // Caso seja <>
+            // Esse else é importante porque, caso ele não exista, a token que é apenas '<' não
+            // seria processada corretamente
+            else r.token = caractereAtual;
           } else r.token = caractereAtual;
           // Adiciona a token de divisor
           r.meaning = this.identificarToken(r.token);
           this.consolidarToken(r, row, col, linha);
-          r = new Token();
           // Caso seja uma token com divisor composta, deve-se saltar 2x no loop de coluna
           if ([':=', '>=', '<=', '<>'].includes(r.token)) {
             col += 2;
           }
+          r = new Token();
           continue;
+        } else if (caractereAtual === '.' && r.token === 'end') {
+          // O algoritmo entra nesse if caso haja um ponto final precedido de um "end",
+          // o que indica que o ponto não é um indicador de casa decimal de um número real,
+          // mas sim a token ponto-final
+
+          // Consolida o "end"
+          r.meaning = this.identificarToken(r.token);
+          this.consolidarToken(r, row, col, linha);
+          // Consolida a token de ponto
+          r = new Token();
+          r.token = caractereAtual;
+          r.meaning = this.identificarToken(r.token);
+          this.consolidarToken(r, row, col, linha);
+          r = new Token();
         }
-        // Caso não tenha encontrado um caractere divisor, acumule o caractere atual na token atual
-        r.token += caractereAtual;
+        // Caso não tenha encontrado um caractere divisor ou ponto-final, acumule o caractere
+        // atual na token atual
+        else r.token += caractereAtual;
       }
       // Adiciona a token restante que está acumulada em r
       if (r.token !== '') {
@@ -163,7 +181,17 @@ export class AnalisadorLexicoService {
         this.consolidarToken(r, row, linha.length - 1, linha);
       }
     }
-    console.log(this.tokens);
+    // Se o arquivo acabou e o modo inComment ainda estava true, então
+    // faltou fechar o comentário.
+    if (inComment) {
+      this.errorsService.addErro(
+        103,
+        text.length,
+        text[text.length - 1].length - 1,
+        text[text.length - 1]
+      );
+    }
+
     this.tokens$.next(this.tokens);
     // Emite os novos valores de erros manualmente
     this.errorsService.emitir();

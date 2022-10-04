@@ -39,7 +39,7 @@ export class ErrorsService {
     {
       code: 103,
       message:
-        'Fim de arquivo inesperado.',
+        'Fim inesperado do arquivo. Você se lembrou de fechar todos os parênteses e chaves que abriu?',
     },
   ];
 
