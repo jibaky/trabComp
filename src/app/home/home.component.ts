@@ -14,7 +14,7 @@ export class HomeComponent implements OnInit {
 
   constructor() { }
   textExp: any = ''
-
+  
   /** Lista de tokens que dividem os numeros da calculadora */
   dividers = '+-*/()'.split('');
   alfabeto = '+-*/.1234567890()'.split('');
