@@ -26,6 +26,7 @@ import { UploaderComponent } from './components/uploader/uploader.component';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { TokensComponent } from './components/tokens/tokens.component';
 import { DownloaderComponent } from './components/downloader/downloader.component';
+import { AnaliseGramaticalComponent } from './pages/analise-gramatical/analise-gramatical.component';
 
 @NgModule({
   declarations: [
@@ -39,6 +40,7 @@ import { DownloaderComponent } from './components/downloader/downloader.componen
     UploaderComponent,
     TokensComponent,
     DownloaderComponent,
+    AnaliseGramaticalComponent,
   ],
   imports: [
     BrowserModule,
