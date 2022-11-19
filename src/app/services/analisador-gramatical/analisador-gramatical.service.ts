@@ -1,6 +1,12 @@
 import { Injectable } from '@angular/core';
-import { first } from 'rxjs';
-import { EPSILON, Gramatica, Simbolo } from 'src/app/gramatica/gramatica.model';
+import {
+  ColunaSintantica,
+  EPSILON,
+  Gramatica,
+  LinhaSintatica,
+  Simbolo,
+  TabelaSintatica,
+} from 'src/app/gramatica/gramatica.model';
 import {
   AnalisadorLexicoService,
   Token,
@@ -75,6 +81,7 @@ export class AnalisadorGramaticalService {
 
     this.firsts = this.calcularFirsts();
     this.calcularFollows();
+    this.calcularTabelaSintatica();
 
     console.log(this.firsts);
     console.log(this.follows);
@@ -161,13 +168,13 @@ export class AnalisadorGramaticalService {
    */
   calcularFollows(): void {
     for (const simbolo of this.gramatica.regras) {
-      console.log('Próxima regra:', simbolo.nome);
+      // console.log('Próxima regra:', simbolo.nome);
       // Caso seja um símbolo terminal, passe para o próximo
       if (simbolo.deriv.length === 0) continue;
       /** Símbolo não-terminal atual cujos first() serão calculados */
       const current = { simbolo: simbolo.nome, follow: [] };
       current.follow = this.findFollowsFor(simbolo.nome);
-      console.log('Satisfeito com', current.simbolo, '=>', current.follow);
+      // console.log('Satisfeito com', current.simbolo, '=>', current.follow);
       this.follows.push(current);
     }
   }
@@ -181,17 +188,17 @@ export class AnalisadorGramaticalService {
     /** Lista de simbolos terminais que são follow() de s */
     const follow: Set<string> = new Set();
     const hasFollows = this.follows.find((f) => f.simbolo === s);
-    if (hasFollows) console.log(`follow(${s}):`, hasFollows);
+    // if (hasFollows) console.log(`follow(${s}):`, hasFollows);
     if (hasFollows !== undefined) return hasFollows.follow;
     // Regra 1: Se um dado não-temrinal <X> é raiz, então $ é parte de follow(<X>)
     if (s === this.gramatica.raiz) follow.add('$');
-    console.log('finding follows() for:', s);
+    // console.log('finding follows() for:', s);
     if (this.pendingFollowRecursions.includes(s)) {
-      console.log(`Pilha de recursão já possui ${s}. Ignorando-o.`);
+      // console.log(`Pilha de recursão já possui ${s}. Ignorando-o.`);
       return [];
     }
     this.pendingFollowRecursions.push(s);
-    console.log(`Pilha de recursão [push]:`, this.pendingFollowRecursions);
+    // console.log(`Pilha de recursão [push]:`, this.pendingFollowRecursions);
     /** lista de Símbolos que derivam em s */
     const simbolos = this.gramatica.regras.filter(
       (r: Simbolo) =>
@@ -199,10 +206,10 @@ export class AnalisadorGramaticalService {
           .length > 0
     );
     if (simbolos.length === 0) {
-      console.error('Simbolo não encontrado.', s, 'Seria ele a raiz?');
+      // console.error('Simbolo não encontrado.', s, 'Seria ele a raiz?');
       return [];
     }
-    console.log('rules to check:', simbolos);
+    // console.log('rules to check:', simbolos);
     for (const simbolo of simbolos) {
       for (const producao of simbolo.deriv) {
         let parteAnterior = null;
@@ -219,7 +226,7 @@ export class AnalisadorGramaticalService {
               parte.match(/<.+>/g) !== null
                 ? this.firsts.filter((f) => f.simbolo === parte)[0]
                 : { simbolo: parte, first: [parte] };
-            console.log(parteAnterior, 'recebe first() de', firstDoCurrent);
+            // console.log(parteAnterior, 'recebe first() de', firstDoCurrent);
             if (!firstDoCurrent)
               console.error('ERRO: first(current) não econtrado.');
 
@@ -229,9 +236,9 @@ export class AnalisadorGramaticalService {
             // Regra 3: Se existe uma produção do tipo <A> -> α<X> ou <A> -> α<X>β onde
             // first(β) contém ε, então follow(<X>) deve conter follow(<A>)
             if (firstDoCurrent.first.includes(EPSILON)) {
-              console.log(
-                `${simbolo.nome} -> α${parteAnterior}${parte} onde first(${parte}) contém ε`
-              );
+              // console.log(
+              //   `${simbolo.nome} -> α${parteAnterior}${parte} onde first(${parte}) contém ε`
+              // );
               this.findFollowsFor(simbolo.nome).map((s) => follow.add(s));
             }
           }
@@ -243,15 +250,54 @@ export class AnalisadorGramaticalService {
           parteAnterior === s &&
           simbolo.nome !== parteAnterior
         ) {
-          console.log(
-            `${simbolo.nome} -> α${parteAnterior} portanto follow(${parteAnterior}) += follow(${simbolo.nome})`
-          );
+          // console.log(
+          //   `${simbolo.nome} -> α${parteAnterior} portanto follow(${parteAnterior}) += follow(${simbolo.nome})`
+          // );
           this.findFollowsFor(simbolo.nome).map((s) => follow.add(s));
         }
       }
     }
     this.pendingFollowRecursions.pop();
-    console.log(`Pilha de recursão [pop]:`, this.pendingFollowRecursions);
+    // console.log(`Pilha de recursão [pop]:`, this.pendingFollowRecursions);
     return Array.from(follow);
+  }
+
+  calcularTabelaSintatica(): void {
+    /** Tabela sintática a ser montada usando os first() e follow() da gramática */
+    const tabela = new TabelaSintatica();
+
+    for (const naoTerminal of this.firsts) {
+      const row = new LinhaSintatica(naoTerminal.simbolo);
+      const simbolo = this.gramatica.regras.find(
+        (r) => r.nome === naoTerminal.simbolo
+      );
+      for (const producao of simbolo.deriv) {
+        const first = this.firsts.find((f) => f.simbolo === producao[0]) || {
+          simbolo: producao[0],
+          first: [producao[0]],
+        };
+        // Regra 1: Na produção A -> α, para cada x terminal em first(α), adicionar A -> α em Tabela[A, x]
+        for (const terminal of first.first) {
+          // Regra 2: Se first(α) contém ε, adicione A -> α a M[A, b] para cada terminal b que estiver em
+          // follow(A).
+          if (terminal === EPSILON) {
+            const follow = this.follows.find((f) => f.simbolo === simbolo.nome);
+            for (const terminal of follow.follow) {
+              const col = new ColunaSintantica(terminal);
+              col.cell = producao;
+              row.col.push(col);
+            }
+
+            continue;
+          }
+          const col = new ColunaSintantica(terminal);
+          col.cell = producao;
+          row.col.push(col);
+        }
+      }
+      tabela.row.push(row);
+    }
+
+    console.log('tabela sintática:', tabela);
   }
 }
