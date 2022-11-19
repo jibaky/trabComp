@@ -20,9 +20,20 @@ export class AnalisadorGramaticalService {
   follows: { simbolo: string; follow: string[] }[] = [];
   /** Gramática carregada pelo serviço */
   gramatica: Gramatica;
+  /**
+   * Pilha de símbolos cujo cálculo de first está na pilha de recursão.
+   * Esta variável é usada para impedir loops de recursão infinitas. */
+  pendingFirstRecursions: string[] = [];
+  /**
+   * Pilha de símbolos cujo cálculo de follow está na pilha de recursão.
+   * Esta variável é usada para impedir loops de recursão infinitas. */
+  pendingFollowRecursions: string[] = [];
 
   constructor(private analisadorLexico: AnalisadorLexicoService) {}
 
+  /**
+   * Reseta os valores e variáveis do serviço para uma nova análise.
+   */
   reset(): void {
     this.input = [];
     this.stack = [];
@@ -30,6 +41,10 @@ export class AnalisadorGramaticalService {
     this.follows = [];
   }
 
+  /**
+   * Carrega uma gramática e prepara seus first(), follow() e tabela sintática preditiva.
+   * @param gramatica Gramática a ser carregada no serviço
+   */
   selectGrammar(gramatica: Gramatica): void {
     this.gramatica = gramatica;
     this.prepare();
@@ -39,6 +54,12 @@ export class AnalisadorGramaticalService {
     console.log('parse bem, parse....');
   }
 
+  /**
+   * Prepara o serviço a partir da gramática carregada:
+   *     - calcula os first() dos símbolos da gramática
+   *     - calcula os follow() dos símbolos da gramática
+   *     - monta a tabela sintática da gramática
+   */
   prepare(): void {
     if (!this.gramatica) return;
     this.reset();
@@ -51,20 +72,18 @@ export class AnalisadorGramaticalService {
     const endSymbol = new Simbolo('$', []);
     this.stack.push(endSymbol);
     console.log('parsing with gramatica:', this.gramatica);
+
     this.firsts = this.calcularFirsts();
-    // this.follows = this.firsts.map(
-    //   (f): { simbolo: string; follow: string[] } => {
-    //     return {
-    //       simbolo: f.simbolo,
-    //       follow: [],
-    //     };
-    //   }
-    // );
     this.calcularFollows();
+
     console.log(this.firsts);
     console.log(this.follows);
   }
 
+  /**
+   * Calcula os conjuntos first() para todos os não-terminais (<Não-terminal>) da gramática.
+   * @returns Retorna uma lista de símbolos, cada um com sua lista de first()
+   */
   calcularFirsts(): { simbolo: string; first: string[] }[] {
     const firsts = [];
     for (const simbolo of this.gramatica.regras) {
@@ -96,26 +115,50 @@ export class AnalisadorGramaticalService {
       console.error('Erro de gramática: simbolo não encontrado.');
       return [];
     }
+    // console.log(`Calculando first(${simbolo.nome})`);
+    this.pendingFirstRecursions.push(simbolo.nome);
+    // console.log('Pilha de recursão [push]:', this.pendingFirstRecursions);
     for (const producao of simbolo.deriv) {
       // Para cada símbolo em uma dada produção
-      // TODO: verificar se precisa de loop ou se deveria acessar apenas producao[0]
       for (const parte of producao) {
+        // console.log(`Analisando símbolo ${parte}`);
         // Se o simbolo for não-terminal, no formato <simbolo não terminal>
-        if (parte.match(/<.+>/g) !== null) {
-          // Regra 2: dado um <X> não-terminal que tem uma produção <X> -> <A>, então
-          // first(<A>) faz parte de first(<X>)
-          this.findFirstFor(parte).map((element) => first.add(element));
-          break;
+        if (parte.match(/<.+>/g) !== null && parte !== simbolo.nome) {
+          let currentFirsts: string[];
+          if (!this.pendingFirstRecursions.includes(parte)) {
+            // Regra 2: dado um <X> não-terminal que tem uma produção <X> -> <A>, então
+            // first(<A>) faz parte de first(<X>)
+            currentFirsts = this.findFirstFor(parte).map((element) => {
+              first.add(element);
+              return element;
+            });
+            // Regra 4: se um dado <X> não-terminal tem uma produção -> <A><B> e
+            // first(<A>) contém ε, então first(<X>) inclui first(<B>) também
+            // console.log(
+            //   `first(${parte}) contém ε?`,
+            //   currentFirsts.includes(EPSILON)
+            // );
+            if (!currentFirsts.includes(EPSILON)) break;
+          }
         } else {
           // Regra 3: dado um símbolo terminal a, first(a) = {a}
+          // console.log(`Adicionando "${parte}" a first(${simbolo.nome})`);
           first.add(parte);
           break;
         }
       }
     }
+    this.pendingFirstRecursions.pop();
+    // console.log('Pilha de recursão [pop]:', this.pendingFirstRecursions);
+    // console.log(`Satisfeito com first(${simbolo.nome}):`, first);
     return Array.from(first);
   }
 
+  /**
+   * Calcula os conjuntos follow() para todos os não-terminais (<Não-terminal>) da gramática.
+   * Não retorna uma lista, mas preenche this.follow com a lista de símbolos,
+   * cada um com sua lista de follow().
+   */
   calcularFollows(): void {
     for (const simbolo of this.gramatica.regras) {
       console.log('Próxima regra:', simbolo.nome);
@@ -129,6 +172,11 @@ export class AnalisadorGramaticalService {
     }
   }
 
+  /**
+   * Calcula recursivamente os follow() do não-terminal s.
+   * @param s Símbolo cujos follow() serão calculados
+   * @returns Lista de terminais que compõem follow(s)
+   */
   findFollowsFor(s: string): string[] {
     /** Lista de simbolos terminais que são follow() de s */
     const follow: Set<string> = new Set();
@@ -138,6 +186,12 @@ export class AnalisadorGramaticalService {
     // Regra 1: Se um dado não-temrinal <X> é raiz, então $ é parte de follow(<X>)
     if (s === this.gramatica.raiz) follow.add('$');
     console.log('finding follows() for:', s);
+    if (this.pendingFollowRecursions.includes(s)) {
+      console.log(`Pilha de recursão já possui ${s}. Ignorando-o.`);
+      return [];
+    }
+    this.pendingFollowRecursions.push(s);
+    console.log(`Pilha de recursão [push]:`, this.pendingFollowRecursions);
     /** lista de Símbolos que derivam em s */
     const simbolos = this.gramatica.regras.filter(
       (r: Simbolo) =>
@@ -196,6 +250,8 @@ export class AnalisadorGramaticalService {
         }
       }
     }
+    this.pendingFollowRecursions.pop();
+    console.log(`Pilha de recursão [pop]:`, this.pendingFollowRecursions);
     return Array.from(follow);
   }
 }
