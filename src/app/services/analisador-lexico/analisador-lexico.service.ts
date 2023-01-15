@@ -5,6 +5,10 @@ import { ErrorsService } from '../errors/errors.service';
 export class Token {
   token: string = '';
   meaning: string = '';
+  line: number = 0;
+  col: number = 0;
+  /** Linha original dentro da qual a token existe */
+  containingLine: string = '';
 }
 
 @Injectable({
@@ -17,7 +21,24 @@ export class AnalisadorLexicoService {
       ''
     );
   /** Array com os caracteres que são capazes de dividir tokens */
-  private dividers = [' ',';',',','(',')',':','=','<','>','+','-','*','{','}','/','\t'];
+  private dividers = [
+    ' ',
+    ';',
+    ',',
+    '(',
+    ')',
+    ':',
+    '=',
+    '<',
+    '>',
+    '+',
+    '-',
+    '*',
+    '{',
+    '}',
+    '/',
+    '\t',
+  ];
   /** Lista de palavras reservadas válidas */
   private reservedWords = [
     { token: 'program', desc: 'programa' },
@@ -127,6 +148,7 @@ export class AnalisadorLexicoService {
         if (this.dividers.includes(caractereAtual)) {
           if (r.token !== '') {
             r.meaning = this.identificarToken(r.token);
+            r.containingLine = linha;
             this.consolidarToken(r, row, col, linha);
             r = new Token();
           }
@@ -149,6 +171,7 @@ export class AnalisadorLexicoService {
           } else r.token = caractereAtual;
           // Adiciona a token de divisor
           r.meaning = this.identificarToken(r.token);
+          r.containingLine = linha;
           this.consolidarToken(r, row, col, linha);
           // Caso seja uma token com divisor composta, deve-se saltar 2x no loop de coluna
           if ([':=', '>=', '<=', '<>'].includes(r.token)) {
@@ -163,11 +186,13 @@ export class AnalisadorLexicoService {
 
           // Consolida o "end"
           r.meaning = this.identificarToken(r.token);
+          r.containingLine = linha;
           this.consolidarToken(r, row, col, linha);
           // Consolida a token de ponto
           r = new Token();
           r.token = caractereAtual;
           r.meaning = this.identificarToken(r.token);
+          r.containingLine = linha;
           this.consolidarToken(r, row, col, linha);
           r = new Token();
         }
@@ -178,6 +203,7 @@ export class AnalisadorLexicoService {
       // Adiciona a token restante que está acumulada em r
       if (r.token !== '') {
         r.meaning = this.identificarToken(r.token);
+        r.containingLine = linha;
         this.consolidarToken(r, row, linha.length - 1, linha);
       }
     }
@@ -186,7 +212,7 @@ export class AnalisadorLexicoService {
     if (inComment) {
       this.errorsService.addErro(
         103,
-        text.length-1,
+        text.length - 1,
         text[text.length - 1].length - 1,
         text[text.length - 1]
       );
@@ -210,6 +236,8 @@ export class AnalisadorLexicoService {
     coluna: number,
     linhaOriginal: string
   ): void {
+    token.line = linha;
+    token.col = coluna - token.token.length;
     this.tokens.push(token);
     if (token.meaning === 'número real mal formatado')
       this.errorsService.addErro(
@@ -227,22 +255,22 @@ export class AnalisadorLexicoService {
         linhaOriginal,
         token.token.length
       );
-      else if (token.meaning === 'identificador muito longo')
+    else if (token.meaning === 'identificador muito longo')
       this.errorsService.addErro(
         104,
         linha,
         coluna < token.token.length ? 0 : coluna - token.token.length,
         linhaOriginal,
         token.token.length
-         );
-      else if (token.meaning === 'número natural muito longo')
+      );
+    else if (token.meaning === 'número natural muito longo')
       this.errorsService.addErro(
         105,
         linha,
         coluna < token.token.length ? 0 : coluna - token.token.length,
         linhaOriginal,
         token.token.length
-         );
+      );
   }
 
   /**
@@ -256,14 +284,13 @@ export class AnalisadorLexicoService {
     // Verifica se é um número real
     if (/(^\.\d*$)|(^\d*\.$)/.test(token)) return 'número real mal formatado';
     else if (/^\d+\.\d+$/.test(token)) return 'número real';
-    else if (/^\d+$/.test(token)) 
-      if(token.length<=8) return 'número natural';
-      else return 'número natural muito longo'
+    else if (/^\d+$/.test(token))
+      if (token.length <= 8) return 'número natural';
+      else return 'número natural muito longo';
     else if (/^[a-zA-z_][a-zA-z_0-9]*$/.test(token))
-      if(token.length<=15) return 'identificador válido';
+      if (token.length <= 15) return 'identificador válido';
       else return 'identificador muito longo';
 
-        
     // Caso a token não tenha sido identifciada, retornar que é um identificador inválido
     return 'identificador inválido';
   }

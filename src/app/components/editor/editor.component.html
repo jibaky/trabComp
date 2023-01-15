@@ -1,6 +1,6 @@
 <div class="actions">
   <app-uploader></app-uploader>
-  <app-downloader [content]="editor.value" ></app-downloader>
+  <app-downloader [content]="editor.value"></app-downloader>
   <button
     [disabled]="analiseAoVivo"
     class="button"
@@ -11,7 +11,7 @@
       $event.preventDefault(); analiseAoVivo = false; analisar()
     "
   >
-    Executar análise léxica
+    Executar análise
     <span class="hotkey">ctrl+enter</span>
   </button>
   <mat-slide-toggle
