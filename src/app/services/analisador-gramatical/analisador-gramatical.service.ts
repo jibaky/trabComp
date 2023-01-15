@@ -89,11 +89,11 @@ export class AnalisadorGramaticalService {
       const token = this.input[0];
       // console.log('STACK ATUAL:', this.stack);
       // console.log('Token atual:', token);
-      console.log(
-        `    Comparando entrada [${token.token}] com stack [${
-          this.stack[this.stack.length - 1]
-        }]`
-      );
+      // console.log(
+      //   `    Comparando entrada [${token.token}] com stack [${
+      //     this.stack[this.stack.length - 1]
+      //   }]`
+      // );
       // O topo da stack é um não-terminal
       if (this.stack[this.stack.length - 1].match(/<.+>/g) !== null) {
         const row = this.tabelaSintatica.row.find(
@@ -106,7 +106,7 @@ export class AnalisadorGramaticalService {
           .map((c) => c.header)
           .join(', ');
         if (col === undefined) {
-          console.log('    Erro! Ignorando', token);
+          // console.log('    Erro! Ignorando', token);
           this.input.shift();
           // Corrige possíveis índices de coluna negativos quando o erro ocorre no primeiro caractere
           const col = token.col < 0 ? 0 : token.col;
@@ -121,7 +121,7 @@ export class AnalisadorGramaticalService {
           continue;
         }
         if (col?.cell[0] === 'TOKEN_SYNC') {
-          console.log('    SYNC SYNC SYNC!');
+          // console.log('    SYNC SYNC SYNC!');
           if (this.input[0].token !== '$') {
             this.errorService.addErro(
               201,
@@ -134,7 +134,7 @@ export class AnalisadorGramaticalService {
             this.stack.pop();
             continue;
           } else {
-            console.log('    Sincronização não tem mais para onde ir: ERRO!');
+            // console.log('    Sincronização não tem mais para onde ir: ERRO!');
             this.errorService.addErro(
               203,
               token.line,
@@ -155,7 +155,7 @@ export class AnalisadorGramaticalService {
       } else {
         // O todo da stack é um símbolo terminal
         if (this.stack[this.stack.length - 1] === token.token) {
-          console.log('    Match! Avançando entrada');
+          // console.log('    Match! Avançando entrada');
           this.input.shift();
           this.stack.pop();
         } else break;
