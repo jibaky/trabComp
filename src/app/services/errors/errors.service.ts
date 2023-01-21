@@ -59,8 +59,17 @@ export class ErrorsService {
       message: 'Token inesperada. Verifique a sintaxe. Tentando sincronizar.',
     },
     {
+      code: 202,
+      message:
+        'Identificador inválido encontrado. Um identificador válido deve começar com letra ou _ (underline).',
+    },
+    {
       code: 203,
       message: 'Fim de arquivo inesperado. Token esperada não foi encontrada.',
+    },
+    {
+      code: 204,
+      message: 'Número esperado não foi encontrado. Verifique a formatação.',
     },
   ];
 

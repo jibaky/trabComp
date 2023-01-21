@@ -81,32 +81,107 @@ export class AnalisadorGramaticalService {
     this.stack.push(raiz.nome);
     /** Indica se o compilador chegou ao fim do arquivo com um erro de sincronização */
     let eof = false;
+    /** Indica se o compilador está no modo-panico */
+    let panicMode = false;
     while (
       this.stack[this.stack.length - 1] !== '$' ||
       this.input[0].token !== '$'
     ) {
       eof = false;
-      const token = this.input[0];
-      // console.log('STACK ATUAL:', this.stack);
-      // console.log('Token atual:', token);
-      // console.log(
-      //   `    Comparando entrada [${token.token}] com stack [${
-      //     this.stack[this.stack.length - 1]
-      //   }]`
-      // );
+      let token;
+      token = this.input[0];
+      if (!token) break;
+      // HACK DE MILHÕES para validar identificadores válidos e números via primeiro caractere
+      if (
+        [
+          'número natural',
+          'número real',
+          'identificador válido',
+          'boolean-verdadeiro',
+          'boolean-falso',
+        ].includes(token.meaning)
+      )
+        token = {
+          ...token,
+          token: this.input[0].token[0],
+        };
+
+      console.log('STACK ATUAL:', this.stack);
+      console.log('Token atual:', token);
+      console.log(
+        `    Comparando entrada [${token.token}] com stack [${
+          this.stack[this.stack.length - 1]
+        }]`
+      );
       // O topo da stack é um não-terminal
       if (this.stack[this.stack.length - 1].match(/<.+>/g) !== null) {
+        if (this.stack[this.stack.length - 1] === '<identificador>') {
+          console.log('PROCURANDO IDENTIFICADOR VÁLIDO');
+          if (
+            ![
+              'identificador válido',
+              'boolean-verdadeiro',
+              'boolean-falso',
+            ].includes(token.meaning)
+          ) {
+            const col = token.col < 0 ? 0 : token.col;
+            this.errorService.addErro(
+              202,
+              token.line,
+              col,
+              token.containingLine,
+              token.token.length - 1,
+              'O valor encontrado foi ' + token.token
+            );
+            this.stack.pop();
+            this.input.shift();
+            continue;
+          }
+          console.log('IDENTIFICADOR VÁLIDO ENCONTRADO');
+          this.stack.pop();
+          this.input.shift();
+          continue;
+        } else if (this.stack[this.stack.length - 1] === '<número>') {
+          console.log('PROCURANDO NÚMERO');
+          if (
+            token.meaning !== 'número natural' &&
+            token.meaning !== 'número real'
+          ) {
+            const col = token.col < 0 ? 0 : token.col;
+            this.errorService.addErro(
+              204,
+              token.line,
+              col,
+              token.containingLine,
+              token.token.length - 1,
+              'O valor encontrado foi ' + token.token
+            );
+            this.stack.pop();
+            this.input.shift();
+            continue;
+          }
+          console.log('NUMERO ENCONTRADO');
+          this.stack.pop();
+          this.input.shift();
+          continue;
+        }
+
         const row = this.tabelaSintatica.row.find(
           (r) => r.header === this.stack[this.stack.length - 1]
         );
         const col = row.col.find((c) => c.header === token.token);
-        // console.log('    Produção correta é:', col?.cell);
+        console.log('    Produção correta é:', col?.cell);
         const expected = row.col
           .filter((c) => c.cell[0] !== 'TOKEN_SYNC' && c.header !== '$')
           .map((c) => c.header)
           .join(', ');
         if (col === undefined) {
-          // console.log('    Erro! Ignorando', token);
+          // if (!panicMode) panicMode = true;
+          // else {
+          //   this.input.shift();
+          //   continue;
+          // }
+          console.log('    Erro! Ignorando', token);
           this.input.shift();
           // Corrige possíveis índices de coluna negativos quando o erro ocorre no primeiro caractere
           const col = token.col < 0 ? 0 : token.col;
@@ -121,20 +196,21 @@ export class AnalisadorGramaticalService {
           continue;
         }
         if (col?.cell[0] === 'TOKEN_SYNC') {
-          // console.log('    SYNC SYNC SYNC!');
+          console.log('    SYNC SYNC SYNC!');
+          // panicMode = false;
           if (this.input[0].token !== '$') {
-            this.errorService.addErro(
-              201,
-              token.line,
-              token.col + 1,
-              token.containingLine,
-              token.token.length,
-              'Uma destas tokens era esperada: ' + expected
-            );
+            // this.errorService.addErro(
+            //   201,
+            //   token.line,
+            //   token.col + 1,
+            //   token.containingLine,
+            //   token.token.length,
+            //   'Uma destas tokens era esperada: ' + expected
+            // );
             this.stack.pop();
             continue;
           } else {
-            // console.log('    Sincronização não tem mais para onde ir: ERRO!');
+            console.log('    Sincronização não tem mais para onde ir: ERRO!');
             this.errorService.addErro(
               203,
               token.line,
@@ -155,12 +231,14 @@ export class AnalisadorGramaticalService {
       } else {
         // O todo da stack é um símbolo terminal
         if (this.stack[this.stack.length - 1] === token.token) {
-          // console.log('    Match! Avançando entrada');
+          console.log('    Match! Avançando entrada');
           this.input.shift();
           this.stack.pop();
-        } else break;
+        } else {
+          this.stack.pop();
+        }
       }
-      // console.log('=============================');
+      console.log('=============================');
     }
     if (
       this.stack[this.stack.length - 1] === '$' &&
@@ -233,6 +311,7 @@ export class AnalisadorGramaticalService {
     const simbolo = this.gramatica.regras.filter(
       (r: Simbolo) => r.nome === s
     )[0];
+    // console.log(s);
     if (!simbolo) {
       console.error('Erro de gramática: simbolo não encontrado.');
       return [];
@@ -341,7 +420,7 @@ export class AnalisadorGramaticalService {
               parte.match(/<.+>/g) !== null
                 ? this.firsts.filter((f) => f.simbolo === parte)[0]
                 : { simbolo: parte, first: [parte] };
-            // console.log(parteAnterior, 'recebe first() de', firstDoCurrent);
+            // console.log(parte, 'recebe follow() de', simbolo.nome);
             if (!firstDoCurrent)
               console.error('ERRO: first(current) não econtrado.');
 
@@ -351,10 +430,12 @@ export class AnalisadorGramaticalService {
             // Regra 3: Se existe uma produção do tipo <A> -> α<X> ou <A> -> α<X>β onde
             // first(β) contém ε, então follow(<X>) deve conter follow(<A>)
             if (firstDoCurrent.first.includes(EPSILON)) {
-              // console.log(
-              //   `${simbolo.nome} -> α${parteAnterior}${parte} onde first(${parte}) contém ε`
-              // );
+              console.log(
+                `${simbolo.nome} -> α${parteAnterior}${parte} onde first(${parte}) contém ε`
+              );
               this.findFollowsFor(simbolo.nome).map((s) => follow.add(s));
+              console.log('=====');
+              console.log(follow);
             }
           }
           parteAnterior = parte;
@@ -365,15 +446,16 @@ export class AnalisadorGramaticalService {
           parteAnterior === s &&
           simbolo.nome !== parteAnterior
         ) {
-          // console.log(
-          //   `${simbolo.nome} -> α${parteAnterior} portanto follow(${parteAnterior}) += follow(${simbolo.nome})`
-          // );
+          console.log(
+            `${simbolo.nome} -> α${parteAnterior} portanto follow(${parteAnterior}) += follow(${simbolo.nome})`
+          );
           this.findFollowsFor(simbolo.nome).map((s) => follow.add(s));
         }
       }
     }
     this.pendingFollowRecursions.pop();
     // console.log(`Pilha de recursão [pop]:`, this.pendingFollowRecursions);
+    console.log('returning follow for', s, follow);
     return Array.from(follow);
   }
 
@@ -386,45 +468,57 @@ export class AnalisadorGramaticalService {
       const simbolo = this.gramatica.regras.find(
         (r) => r.nome === naoTerminal.simbolo
       );
+      // console.log('=== START ', naoTerminal);
       for (const producao of simbolo.deriv) {
-        const first = this.firsts.find((f) => f.simbolo === producao[0]) || {
-          simbolo: producao[0],
-          first: [producao[0]],
-        };
-        // Regra 1: Na produção A -> α, para cada x terminal em first(α), adicionar A -> α em Tabela[A, x]
-        for (const terminal of first.first) {
-          // Regra 2: Se first(α) contém ε, adicione A -> α a M[A, b] para cada terminal b que estiver em
-          // follow(A).
-          if (terminal === EPSILON) {
-            // console.log(naoTerminal.simbolo, 'Achou ε em first(α)');
-            const follow = this.follows.find((f) => f.simbolo === simbolo.nome);
-            // console.log('==> ', naoTerminal.simbolo, 'Inicio loop ε:');
+        for (const parte of producao) {
+          // console.log('parte atual da derivação', parte);
+          const first = this.firsts.find((f) => f.simbolo === parte) || {
+            simbolo: parte,
+            first: [parte],
+          };
+          let foundEpsilon = false;
+          // Regra 1: Na produção A -> α, para cada x terminal em first(α), adicionar A -> α em Tabela[A, x]
+          for (const terminal of first.first) {
+            // Regra 2: Se first(α) contém ε, adicione A -> α a M[A, b] para cada terminal b que estiver em
+            // follow(A).
+            if (terminal === EPSILON) {
+              foundEpsilon = true;
+              // console.log(naoTerminal.simbolo, 'Achou ε em first(α)');
+              const follow = this.follows.find(
+                (f) => f.simbolo === simbolo.nome
+              );
+              // console.log('==> ', naoTerminal.simbolo, 'Inicio loop ε:');
 
-            for (const terminal of follow.follow) {
-              // É importante verificar se um dado terminal dentro de follow(A) já não está em first(α)
-              // para evitar confusões
-              const found = row.col.findIndex((col) => col.header === terminal);
-              if (found !== -1) continue;
-              // console.log('    ', naoTerminal.simbolo, 'Regra 2:', terminal, found !== -1);
-              // Adiciona A -> ε a M[A, b] onde b está em follow(A) e é igual a ε
-              const col = new ColunaSintantica(terminal);
-              col.cell = [EPSILON];
-              row.col.push(col);
+              for (const terminal of follow.follow) {
+                // É importante verificar se um dado terminal dentro de follow(A) já não está em first(α)
+                // para evitar confusões
+                const found = row.col.findIndex(
+                  (col) => col.header === terminal
+                );
+                if (found !== -1) continue;
+                // console.log('    ', naoTerminal.simbolo, 'Regra 2:', terminal, found !== -1);
+                // Adiciona A -> ε a M[A, b] onde b está em follow(A) e é igual a ε
+                const col = new ColunaSintantica(terminal);
+                col.cell = [EPSILON];
+                row.col.push(col);
+              }
+              // console.log('==> ', naoTerminal.simbolo, 'Fim loop ε.');
+              continue;
             }
-            // console.log('==> ', naoTerminal.simbolo, 'Fim loop ε.');
-            continue;
+            // console.log(naoTerminal.simbolo, 'Regra 1:', terminal, producao);
+            // Caso a coluna não exista, crie uma nova, caso contrário, sobrescreva sua cell pela produção encontrada
+            const existingCol = row.col.find((col) => col.header === terminal);
+            const col =
+              existingCol !== undefined
+                ? existingCol
+                : new ColunaSintantica(terminal);
+            col.cell = producao;
+            if (existingCol === undefined) row.col.push(col);
           }
-          // console.log(naoTerminal.simbolo, 'Regra 1:', terminal, producao);
-          // Caso a coluna não exista, crie uma nova, caso contrário, sobrescreva sua cell pela produção encontrada
-          const existingCol = row.col.find((col) => col.header === terminal);
-          const col =
-            existingCol !== undefined
-              ? existingCol
-              : new ColunaSintantica(terminal);
-          col.cell = producao;
-          if (existingCol === undefined) row.col.push(col);
+          if (!foundEpsilon) break;
         }
       }
+      console.log('=== FIM ', naoTerminal);
       // Agora é hora de adicionar as tokens de sincronização, que serão usadas para tentar recuperar a
       // análise sintática de uma situação de erro. As células que vão receber a token de sincronização
       // serão, para cada não-terminal, as células correspondentes aos terminais que compõem seu follow()
