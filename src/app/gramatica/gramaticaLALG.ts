@@ -7,7 +7,15 @@ gramaticaLALG.regras = [];
 gramaticaLALG.regras.push(
   // 1
   new Simbolo('<programa>', [
-    ['program', '<identificador>', ';', '<bloco>', '.'],
+    [
+      'program',
+      '<identificador>',
+      '[[programa_nome]]',
+      ';',
+      '<bloco>',
+      '.',
+      '[[variável_nao_utilizada]]',
+    ],
   ])
 );
 
@@ -37,20 +45,25 @@ gramaticaLALG.regras.push(
 gramaticaLALG.regras.push(
   // 4
   new Simbolo('<declaração de variáveis>', [
-    ['<tipo>', '<lista de identificadores>'],
+    ['<tipo>', '[[declaração_tipo]]', '<lista de identificadores>'],
   ])
 );
 
 gramaticaLALG.regras.push(
   // 5
   new Simbolo('<lista de identificadores>', [
-    ['<identificador>', "<lista de identificadores'>"],
+    ['<identificador>', '[[declaração_id]]', "<lista de identificadores'>"],
   ])
 );
 gramaticaLALG.regras.push(
   // 5'
   new Simbolo("<lista de identificadores'>", [
-    [',', '<identificador>', "<lista de identificadores'>"],
+    [
+      ',',
+      '<identificador>',
+      '[[declaração_id]]',
+      "<lista de identificadores'>",
+    ],
     [EPSILON],
   ])
 );
@@ -147,7 +160,15 @@ gramaticaLALG.regras.push(
 
 gramaticaLALG.regras.push(
   // 12
-  new Simbolo('<atribuição>', [['<variável>', ':=', '<expressão>']])
+  new Simbolo('<atribuição>', [
+    [
+      '<variável>',
+      '[[atribuição_var]]',
+      ':=',
+      '<expressão>',
+      '[[atribuição_value]]',
+    ],
+  ])
 );
 
 gramaticaLALG.regras.push(
@@ -232,10 +253,7 @@ gramaticaLALG.regras.push(
 
 gramaticaLALG.regras.push(
   // 19'
-  new Simbolo("<termo'>", [
-    ['(', "<termo''>", ')', '<fator>', "<termo'>"],
-    [EPSILON],
-  ])
+  new Simbolo("<termo'>", [["<termo''>", '<fator>', "<termo'>"], [EPSILON]])
 );
 
 gramaticaLALG.regras.push(
@@ -255,7 +273,9 @@ gramaticaLALG.regras.push(
 
 gramaticaLALG.regras.push(
   // 21
-  new Simbolo('<variável>', [['<identificador>', "<variável'>"]])
+  new Simbolo('<variável>', [
+    ['<identificador>', '[[variável_uso]]', "<variável'>"],
+  ])
 );
 
 gramaticaLALG.regras.push(

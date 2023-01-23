@@ -71,6 +71,22 @@ export class ErrorsService {
       code: 204,
       message: 'Número esperado não foi encontrado. Verifique a formatação.',
     },
+    {
+      code: 301,
+      message: 'Sobrescrita de declarações de variáveis é proibida.',
+    },
+    {
+      code: 302,
+      message: 'Variável não declarada detectada.',
+    },
+    {
+      code: 303,
+      message: 'Tipos incompatíveis detectados.',
+    },
+    {
+      code: 304,
+      message: 'Erro semântico: ',
+    },
   ];
 
   private messages: Erro[] = [];

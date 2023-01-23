@@ -49,7 +49,7 @@ export class EditorComponent implements OnInit {
     // Não perguntem. Hax hax hax.
     setTimeout(() => {
       this.editorElement.nativeElement.value =
-        'program teste;\nbegin\na:=false;\nb:= 1 + 1\nend. ';
+        'program teste;\nint alfa, beta;\nboolean omega;\nbegin\nalfa:=false;\nbeta:= 1 + 1\nend. ';
       this.parseLines();
     }, 50);
 

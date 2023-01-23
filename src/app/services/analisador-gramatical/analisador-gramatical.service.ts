@@ -11,6 +11,7 @@ import {
   AnalisadorLexicoService,
   Token,
 } from '../analisador-lexico/analisador-lexico.service';
+import { AnalisadorSemanticoService } from '../analisador-semantico/analisador-semantico.service';
 import { ErrorsService } from '../errors/errors.service';
 
 @Injectable({
@@ -41,7 +42,8 @@ export class AnalisadorGramaticalService {
 
   constructor(
     private analisadorLexico: AnalisadorLexicoService,
-    private errorService: ErrorsService
+    private errorService: ErrorsService,
+    private analisadorSemantico: AnalisadorSemanticoService
   ) {}
 
   /**
@@ -64,6 +66,7 @@ export class AnalisadorGramaticalService {
   }
 
   parse(): void {
+    this.analisadorSemantico.reset();
     this.input = [...this.analisadorLexico.tokens$.value];
     const endToken = new Token();
     endToken.token = '$';
@@ -83,6 +86,7 @@ export class AnalisadorGramaticalService {
     let eof = false;
     /** Indica se o compilador está no modo-panico */
     let panicMode = false;
+    let lastTerminal: Token;
     while (
       this.stack[this.stack.length - 1] !== '$' ||
       this.input[0].token !== '$'
@@ -91,6 +95,10 @@ export class AnalisadorGramaticalService {
       let token;
       token = this.input[0];
       if (!token) break;
+      if (this.stack[this.stack.length - 1].match(/\[\[.+\]\]/g)) {
+        this.semantica(this.stack.pop(), lastTerminal);
+        continue;
+      }
       // HACK DE MILHÕES para validar identificadores válidos e números via primeiro caractere
       if (
         [
@@ -106,17 +114,17 @@ export class AnalisadorGramaticalService {
           token: this.input[0].token[0],
         };
 
-      console.log('STACK ATUAL:', this.stack);
-      console.log('Token atual:', token);
-      console.log(
-        `    Comparando entrada [${token.token}] com stack [${
-          this.stack[this.stack.length - 1]
-        }]`
-      );
+      // console.log('STACK ATUAL:', this.stack);
+      // console.log('Token atual:', token);
+      // console.log(
+      //   `    Comparando entrada [${token.token}] com stack [${
+      //     this.stack[this.stack.length - 1]
+      //   }]`
+      // );
       // O topo da stack é um não-terminal
       if (this.stack[this.stack.length - 1].match(/<.+>/g) !== null) {
         if (this.stack[this.stack.length - 1] === '<identificador>') {
-          console.log('PROCURANDO IDENTIFICADOR VÁLIDO');
+          // console.log('PROCURANDO IDENTIFICADOR VÁLIDO');
           if (
             ![
               'identificador válido',
@@ -134,15 +142,15 @@ export class AnalisadorGramaticalService {
               'O valor encontrado foi ' + token.token
             );
             this.stack.pop();
-            this.input.shift();
+            lastTerminal = this.input.shift();
             continue;
           }
-          console.log('IDENTIFICADOR VÁLIDO ENCONTRADO');
+          // console.log('IDENTIFICADOR VÁLIDO ENCONTRADO');
           this.stack.pop();
-          this.input.shift();
+          lastTerminal = this.input.shift();
           continue;
         } else if (this.stack[this.stack.length - 1] === '<número>') {
-          console.log('PROCURANDO NÚMERO');
+          // console.log('PROCURANDO NÚMERO');
           if (
             token.meaning !== 'número natural' &&
             token.meaning !== 'número real'
@@ -157,12 +165,12 @@ export class AnalisadorGramaticalService {
               'O valor encontrado foi ' + token.token
             );
             this.stack.pop();
-            this.input.shift();
+            lastTerminal = this.input.shift();
             continue;
           }
-          console.log('NUMERO ENCONTRADO');
+          // console.log('NUMERO ENCONTRADO');
           this.stack.pop();
-          this.input.shift();
+          lastTerminal = this.input.shift();
           continue;
         }
 
@@ -170,7 +178,7 @@ export class AnalisadorGramaticalService {
           (r) => r.header === this.stack[this.stack.length - 1]
         );
         const col = row.col.find((c) => c.header === token.token);
-        console.log('    Produção correta é:', col?.cell);
+        // console.log('    Produção correta é:', col?.cell);
         const expected = row.col
           .filter((c) => c.cell[0] !== 'TOKEN_SYNC' && c.header !== '$')
           .map((c) => c.header)
@@ -181,8 +189,8 @@ export class AnalisadorGramaticalService {
           //   this.input.shift();
           //   continue;
           // }
-          console.log('    Erro! Ignorando', token);
-          this.input.shift();
+          // console.log('    Erro! Ignorando', token);
+          lastTerminal = this.input.shift();
           // Corrige possíveis índices de coluna negativos quando o erro ocorre no primeiro caractere
           const col = token.col < 0 ? 0 : token.col;
           this.errorService.addErro(
@@ -196,7 +204,7 @@ export class AnalisadorGramaticalService {
           continue;
         }
         if (col?.cell[0] === 'TOKEN_SYNC') {
-          console.log('    SYNC SYNC SYNC!');
+          // console.log('    SYNC SYNC SYNC!');
           // panicMode = false;
           if (this.input[0].token !== '$') {
             // this.errorService.addErro(
@@ -210,7 +218,7 @@ export class AnalisadorGramaticalService {
             this.stack.pop();
             continue;
           } else {
-            console.log('    Sincronização não tem mais para onde ir: ERRO!');
+            // console.log('    Sincronização não tem mais para onde ir: ERRO!');
             this.errorService.addErro(
               203,
               token.line,
@@ -231,14 +239,14 @@ export class AnalisadorGramaticalService {
       } else {
         // O todo da stack é um símbolo terminal
         if (this.stack[this.stack.length - 1] === token.token) {
-          console.log('    Match! Avançando entrada');
-          this.input.shift();
+          // console.log('    Match! Avançando entrada');
+          lastTerminal = this.input.shift();
           this.stack.pop();
         } else {
           this.stack.pop();
         }
       }
-      console.log('=============================');
+      // console.log('=============================');
     }
     if (
       this.stack[this.stack.length - 1] === '$' &&
@@ -270,6 +278,7 @@ export class AnalisadorGramaticalService {
   prepare(): void {
     if (!this.gramatica) return;
     this.reset();
+    this.analisadorSemantico.reset();
     console.log('parsing with gramatica:', this.gramatica);
 
     this.firsts = this.calcularFirsts();
@@ -323,6 +332,9 @@ export class AnalisadorGramaticalService {
       // Para cada símbolo em uma dada produção
       for (const parte of producao) {
         // console.log(`Analisando símbolo ${parte}`);
+        if (parte.match(/\[\[.+\]\]/g)) {
+          continue;
+        }
         // Se o simbolo for não-terminal, no formato <simbolo não terminal>
         if (parte.match(/<.+>/g) !== null && parte !== simbolo.nome) {
           let currentFirsts: string[];
@@ -410,6 +422,9 @@ export class AnalisadorGramaticalService {
         // Regra 2: Se existe uma produção do tipo <A> -> α<X>β onde β != ε, então
         // first(β), exceto ε, é parte de follow(<X>)
         for (const parte of producao) {
+          if (parte.match(/\[\[.+\]\]/g)) {
+            continue;
+          }
           if (
             parteAnterior === s &&
             parteAnterior !== null &&
@@ -430,12 +445,12 @@ export class AnalisadorGramaticalService {
             // Regra 3: Se existe uma produção do tipo <A> -> α<X> ou <A> -> α<X>β onde
             // first(β) contém ε, então follow(<X>) deve conter follow(<A>)
             if (firstDoCurrent.first.includes(EPSILON)) {
-              console.log(
-                `${simbolo.nome} -> α${parteAnterior}${parte} onde first(${parte}) contém ε`
-              );
+              // console.log(
+              //   `${simbolo.nome} -> α${parteAnterior}${parte} onde first(${parte}) contém ε`
+              // );
               this.findFollowsFor(simbolo.nome).map((s) => follow.add(s));
-              console.log('=====');
-              console.log(follow);
+              // console.log('=====');
+              // console.log(follow);
             }
           }
           parteAnterior = parte;
@@ -446,16 +461,16 @@ export class AnalisadorGramaticalService {
           parteAnterior === s &&
           simbolo.nome !== parteAnterior
         ) {
-          console.log(
-            `${simbolo.nome} -> α${parteAnterior} portanto follow(${parteAnterior}) += follow(${simbolo.nome})`
-          );
+          // console.log(
+          //   `${simbolo.nome} -> α${parteAnterior} portanto follow(${parteAnterior}) += follow(${simbolo.nome})`
+          // );
           this.findFollowsFor(simbolo.nome).map((s) => follow.add(s));
         }
       }
     }
     this.pendingFollowRecursions.pop();
     // console.log(`Pilha de recursão [pop]:`, this.pendingFollowRecursions);
-    console.log('returning follow for', s, follow);
+    // console.log('returning follow for', s, follow);
     return Array.from(follow);
   }
 
@@ -518,7 +533,7 @@ export class AnalisadorGramaticalService {
           if (!foundEpsilon) break;
         }
       }
-      console.log('=== FIM ', naoTerminal);
+      // console.log('=== FIM ', naoTerminal);
       // Agora é hora de adicionar as tokens de sincronização, que serão usadas para tentar recuperar a
       // análise sintática de uma situação de erro. As células que vão receber a token de sincronização
       // serão, para cada não-terminal, as células correspondentes aos terminais que compõem seu follow()
@@ -540,5 +555,92 @@ export class AnalisadorGramaticalService {
     console.log('tabela sintática:', tabela);
 
     return tabela;
+  }
+
+  semanticaTipo: string;
+  semanticaVar: Token;
+
+  semantica(token: string, prev: Token): void {
+    if (token === '[[programa_nome]]') {
+      console.log('[SEMANTICA] Nome do programa', prev);
+      this.analisadorSemantico.add(
+        prev.token,
+        prev.meaning,
+        'nome_prog',
+        '-',
+        0
+      );
+    } else if (token === '[[declaração_tipo]]') {
+      console.log('[SEMANTICA] Declaração de variáveis: tipo', prev);
+      this.semanticaTipo = prev.token;
+    } else if (token === '[[declaração_id]]') {
+      console.log('[SEMANTICA] Declaração de variáveis: var', prev);
+      if (this.semanticaTipo !== 'int' && this.semanticaTipo !== 'boolean')
+        console.log('WTF TIPO?');
+      if (this.analisadorSemantico.check(prev.token, 'var')) {
+        this.errorService.addErro(
+          301,
+          prev.line,
+          prev.col,
+          prev.containingLine,
+          prev.token.length - 1,
+          `A variável ${prev.token} já foi declarada anteriormente.`
+        );
+      } else {
+        this.analisadorSemantico.add(
+          prev.token,
+          prev.meaning,
+          'var',
+          this.semanticaTipo === 'int' ? 'int' : 'boolean',
+          0
+        );
+      }
+    } else if (token === '[[atribuição_var]]') {
+      this.semanticaVar = prev;
+    } else if (token === '[[atribuição_value]]') {
+      const v = this.analisadorSemantico.find(this.semanticaVar.token, 'var');
+      if (v === undefined)
+        this.errorService.addErro(
+          302,
+          this.semanticaVar.line,
+          this.semanticaVar.col,
+          this.semanticaVar.containingLine,
+          this.semanticaVar.token.length - 1,
+          `Declare ${this.semanticaVar.token} antes de utilizá-la.`
+        );
+      else if (
+        (v.tipo === 'int' &&
+          !['número real', 'número natural'].includes(prev.meaning)) ||
+        (v.tipo === 'boolean' &&
+          !['boolean-falso', 'boolean-verdadeiro'].includes(prev.meaning))
+      )
+        this.errorService.addErro(
+          303,
+          prev.line,
+          prev.col,
+          prev.containingLine,
+          prev.token.length - 1,
+          `A variável ${this.semanticaVar.token} é ${v.tipo}, mas o valor atribuído é do tipo ${prev.meaning}.`
+        );
+      else if (v.tipo === 'int') v.valor = Number(prev.token);
+      else if (v.tipo === 'boolean') v.valor = prev.token === 'true' ? 1 : 0;
+    } else if (token === '[[variável_uso]]') {
+      const v = this.analisadorSemantico.find(prev.token, 'var');
+      if (v !== undefined && !v.utilizada) v.utilizada = true;
+    } else if (token === '[[variável_nao_utilizada]]') {
+      const l = this.analisadorSemantico.simbolos$.value.filter(
+        (line) => line.categoria === 'var' && !line.utilizada
+      );
+      for (const line of l) {
+        this.errorService.addErro(
+          304,
+          prev.line,
+          prev.col + 1,
+          prev.containingLine,
+          1,
+          `a variável ${line.cadeia} foi declarada, mas não utilizada.`
+        );
+      }
+    }
   }
 }

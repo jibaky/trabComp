@@ -27,6 +27,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { TokensComponent } from './components/tokens/tokens.component';
 import { DownloaderComponent } from './components/downloader/downloader.component';
 import { AnaliseGramaticalComponent } from './pages/analise-gramatical/analise-gramatical.component';
+import { AnaliseSemanticaComponent } from './pages/analise-semantica/analise-semantica.component';
+import { SimbolosComponent } from './components/simbolos/simbolos.component';
 
 @NgModule({
   declarations: [
@@ -41,6 +43,8 @@ import { AnaliseGramaticalComponent } from './pages/analise-gramatical/analise-g
     TokensComponent,
     DownloaderComponent,
     AnaliseGramaticalComponent,
+    AnaliseSemanticaComponent,
+    SimbolosComponent,
   ],
   imports: [
     BrowserModule,
