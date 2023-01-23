@@ -48,6 +48,8 @@ export class EditorComponent implements OnInit {
   ngAfterViewInit(): void {
     // Não perguntem. Hax hax hax.
     setTimeout(() => {
+      this.editorElement.nativeElement.value =
+        'program teste;\nint alfa, beta;\nboolean omega;\nbegin\nalfa:=false;\nbeta:= 1 + 1\nend. ';
       this.parseLines();
     }, 50);
 

@@ -10,13 +10,13 @@ import {
   styleUrls: ['./tokens.component.scss'],
 })
 export class TokensComponent implements OnInit {
-  columnsToDisplay: string[] = ['token', 'meaning'];
+  columnsToDisplay: string[] = ['token', 'meaning', 'rowcol'];
 
   constructor(public analisadorLexicoService: AnalisadorLexicoService) {}
 
   ngOnInit(): void {
     this.analisadorLexicoService.tokens$.subscribe((tokens: Token[]) => {
-      console.log('tokens arrived', tokens);
+      // console.log('tokens arrived', tokens);
     });
   }
 }

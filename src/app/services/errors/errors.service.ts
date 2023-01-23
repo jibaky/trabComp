@@ -48,8 +48,44 @@ export class ErrorsService {
     },
     {
       code: 105,
+      message: 'Naturais com mais que 8 dígitos não são suportados.',
+    },
+    {
+      code: 200,
+      message: 'Token inesperada. Verifique a sintaxe.',
+    },
+    {
+      code: 201,
+      message: 'Token inesperada. Verifique a sintaxe. Tentando sincronizar.',
+    },
+    {
+      code: 202,
       message:
-        'Naturais com mais que 8 dígitos não são suportados.',
+        'Identificador inválido encontrado. Um identificador válido deve começar com letra ou _ (underline).',
+    },
+    {
+      code: 203,
+      message: 'Fim de arquivo inesperado. Token esperada não foi encontrada.',
+    },
+    {
+      code: 204,
+      message: 'Número esperado não foi encontrado. Verifique a formatação.',
+    },
+    {
+      code: 301,
+      message: 'Sobrescrita de declarações de variáveis é proibida.',
+    },
+    {
+      code: 302,
+      message: 'Variável não declarada detectada.',
+    },
+    {
+      code: 303,
+      message: 'Tipos incompatíveis detectados.',
+    },
+    {
+      code: 304,
+      message: 'Erro semântico: ',
     },
   ];
 
@@ -74,13 +110,16 @@ export class ErrorsService {
    * @param column coluna da linha onde o erro ocorreu
    * @param linhaOriginal conteúdo original da linha que causou o erro
    * @param length valor opcional indicando a largura da região para destacar como erro
+   * @param length valor opcional indicando a largura da região para destacar como erro
+   * @param extras string opcional contendo mais informações passadas pelo componente que chamou a função
    */
   addErro(
     code: number,
     line: number,
     column: number,
     linhaOriginal: string,
-    length?: number
+    length?: number,
+    extras?: string
   ): void {
     if (line < 0 || column < 0) return;
 
@@ -94,6 +133,9 @@ export class ErrorsService {
     const novoErro = new Erro();
     novoErro.code = code;
     novoErro.text = errorMessage.message;
+    if (extras) {
+      novoErro.text += ' ' + extras;
+    }
     novoErro.line = line;
     novoErro.column = column;
     novoErro.formattedLine = this.formatarLinha(linhaOriginal, column, length);
